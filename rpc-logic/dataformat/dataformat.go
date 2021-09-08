@@ -1,40 +1,84 @@
 package dataformat
 
 import (
-	"fmt"
+	"errors"
 	"time"
 )
 
-
+type Args struct {
+	Key string
+	Value string
+}
 
 type Data struct {
-	Key string
 	Value string
 	Timestamp time.Time
 }
 
-// Dataformat can return Data ( if 'get')
-type Dataformat int
+// Map : K -> key, V -> data struct
+var datastore map[string]Data
+type Dataformat int //edge node
 
+func InitMap() error {
+	datastore = make(map[string]Data)
+	return nil
+}
 
-func (d *Dataformat) Get(key string, dataResult *Data) error {
-	fmt.Printf("Get\n")
-	*dataResult = Data{key," ", time.Now()}
+func (t *Dataformat) Get(args Args, dataResult *Data) error {
+
+	// Get from the datastore
+	if d, found := datastore[args.Key]; found {
+		*dataResult = d
+	} else {
+		return errors.New("key not in datastore")
+	}
 	return nil
 }
 
 
-func (d *Dataformat) Put(data Data, dataResult *Data) error {
-	fmt.Printf("Put\n")
+func (t *Dataformat) Put(args Args, dataResult *Data) error {
+
+	// Build data struct
+	data := Data{args.Value, time.Now()}
+	// Save in the Datastore
+	datastore[args.Key] = data
+	//fmt.Printf("value: %s\ntimestamp: %s\n", data.Value, data.Timestamp.String()  )
+	// Return data to the caller
+	*dataResult = data
+
 	return nil
 }
 
-func (d *Dataformat) Delete(data Data, dataResult *Data) error {
-	fmt.Printf("Delete\n")
+func (t *Dataformat) Delete(args Args, dataResult *Data) error {
+
+	// Delete in the Datastore
+	if _, found := datastore[args.Key]; found {
+		delete(datastore, args.Key)
+	}else {
+		return errors.New("key not in datastore")
+	}
 	return nil
 }
 
-func (d *Dataformat) Append(data Data, dataResult *Data) error {
-	fmt.Printf("Append\n")
+func (t *Dataformat) Append(args Args, dataResult *Data) error {
+
+	// Build data struct
+	data := Data{args.Value, time.Now()}
+	// Save in the Datastore
+	if d, found := datastore[args.Key]; found {
+		d.Value = d.Value + "\n" + args.Value // dummy append
+		d.Timestamp = data.Timestamp
+		// update in memory
+		datastore[args.Key] = d
+		// update the result
+		data = d
+	} else {
+		// Normal Put func
+		datastore[args.Key] = data
+	}
+
+	// Return data to the caller
+	*dataResult = data
+
 	return nil
 }

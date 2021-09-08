@@ -7,12 +7,11 @@ import (
 	"os"
 	"sdcc-project/rpc-logic/dataformat"
 	"strings"
-	"time"
 )
 
 //address and port on which RPC server is listening
-var port = 12345
-var addr = fmt.Sprintf( "localhost:%d", port)
+var port 	= 12345
+var addr 	= fmt.Sprintf( "localhost:%d", port)
 
 
 func main()  {
@@ -40,29 +39,28 @@ func main()  {
 	// Init variables
 	command 	:= os.Args[1]
 	key 		:= os.Args[2]
-	timestamp 	:= time.Now() // current local timestamp
-	value := ""
+	value 		:= ""
 	if numArgs > 3 {
 		value = os.Args[3]
 	}
 
 	// Init data input for RPC
-	args := &dataformat.Data{Key: key, Value: value, Timestamp: timestamp}
+	args := &dataformat.Args{Key: key, Value: value}
 
 	// Asynchronous call RPC
 	if strings.EqualFold(command,"get") {
 
 		// GET body
-		divReply := new(dataformat.Get)
+		reply := new(dataformat.Data)
 		log.Printf("Asynchronous call to RPC server")
 
-		divCall := client.Go("Dataformat.Get", args, divReply, nil)
-		divCall = <-divCall.Done
-		if divCall.Error != nil {
-			log.Fatal("Error in Dataformat.Get: ", divCall.Error.Error())
+		call := client.Go("Dataformat.Get", args, reply, nil)
+		call = <-call.Done
+		if call.Error != nil {
+			log.Fatal("Error in Dataformat.Get: ", call.Error.Error())
 		}
 
-		fmt.Printf("Dataformat.Get:\n Key:\t%s\nValue:\t%s\nTimestamp:\t%s\n", divReply.Key, divReply.Value, divReply.Timestamp.String() )
+		fmt.Printf("Dataformat.Get:\n Key:\t%s\nValue:\n%s\nTimestamp:\t%s\n", key, reply.Value, reply.Timestamp.String() )
 
 	} else if strings.EqualFold(command,"put") {
 
@@ -71,27 +69,32 @@ func main()  {
 			errorArgs = true
 			goto argumentsError
 		}
-		divReply := new(dataformat.Put)
+		reply := new(dataformat.Data)
 		log.Printf("Asynchronous call to RPC server")
 
-		divCall := client.Go("Dataformat.Put", args, divReply, nil)
-		divCall = <-divCall.Done
-		if divCall.Error != nil {
-			log.Fatal("Error in Dataformat.Put: ", divCall.Error.Error())
+		call := client.Go("Dataformat.Put", args, reply, nil)
+		call = <-call.Done
+		if call.Error != nil {
+			log.Fatal("Error in Dataformat.Put: ", call.Error.Error())
 		}
+
+		fmt.Printf("Dataformat.Put:\n Key:\t%s\nValue:\n%s\nTimestamp:\t%s\n", key, reply.Value, reply.Timestamp.String() )
 
 
 	} else if strings.EqualFold(command,"delete") {
 
 		// DELETE body
-		divReply := new(dataformat.Delete)
+		reply := new(dataformat.Data)
 		log.Printf("Asynchronous call to RPC server")
 
-		divCall := client.Go("Dataformat.Delete", args, divReply, nil)
-		divCall = <-divCall.Done
-		if divCall.Error != nil {
-			log.Fatal("Error in Dataformat.Delete: ", divCall.Error.Error())
+		call := client.Go("Dataformat.Delete", args, reply, nil)
+		call = <-call.Done
+		if call.Error != nil {
+			log.Fatal("Error in Dataformat.Delete: ", call.Error.Error())
 		}
+
+		fmt.Printf("Dataformat.Delete:\n Key:\t%s\nTimestamp:\t%s\n", key, reply.Timestamp.String() )
+
 
 	} else if strings.EqualFold(command,"append") {
 
@@ -100,14 +103,17 @@ func main()  {
 			errorArgs = true
 			goto argumentsError
 		}
-		divReply := new(dataformat.Append)
+		reply := new(dataformat.Data)
 		log.Printf("Asynchronous call to RPC server")
 
-		divCall := client.Go("Dataformat.Append", args, divReply, nil)
-		divCall = <-divCall.Done
-		if divCall.Error != nil {
-			log.Fatal("Error in Dataformat.Append: ", divCall.Error.Error())
+		call := client.Go("Dataformat.Append", args, reply, nil)
+		call = <-call.Done
+		if call.Error != nil {
+			log.Fatal("Error in Dataformat.Append: ", call.Error.Error())
 		}
+
+		fmt.Printf("Dataformat.Append:\n Key:\t%s\nValue:\n%s\nTimestamp:\t%s\n", key, reply.Value, reply.Timestamp.String() )
+
 
 
 	}else {

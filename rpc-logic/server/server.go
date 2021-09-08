@@ -15,14 +15,16 @@ var path  		= "/"
 var debugPath 	= "/debug"
 var port 		= 12345
 
+var df *dataformat.Dataformat
+
 func main()  {
 
-	//Create an instance of struct which implements Arith interface
-	dataformat := new(dataformat.Dataformat)
-
+	//Create an instance of struct
+	df = new(dataformat.Dataformat)
+	dataformat.InitMap()
 	// Register a new RPC server and the struct we created above.
 	server := rpc.NewServer()
-	err := server.RegisterName("Datastore", dataformat)
+	err := server.RegisterName("Dataformat", df) // important for calling right func
 	if err != nil {
 		log.Fatal("Format of service Datastore is not correct: ", err)
 	}
