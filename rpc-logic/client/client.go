@@ -1,12 +1,13 @@
-package main
+package client
+
 
 import (
 	"fmt"
 	"log"
 	"net/rpc"
-	"os"
 	"sdcc-project/rpc-logic/dataformat"
 	"strings"
+	"time"
 )
 
 //address and port on which RPC server is listening
@@ -14,7 +15,7 @@ var port 	= 12345
 var addr 	= fmt.Sprintf( "localhost:%d", port)
 
 
-func main()  {
+func RpcEdgeNode(command string, key string, value string, timestamp time.Time )  {
 
 	// Try to connect to addr using HTTP protocol
 	client, err := rpc.DialHTTP("tcp", addr)
@@ -22,30 +23,9 @@ func main()  {
 		log.Fatal("Error in dialing: ", err)
 	}
 	defer client.Close()
-	numArgs := len(os.Args)
-	errorArgs := false
-	if numArgs < 3 {
-		errorArgs = true
-	}
-
-	// Terminate program because of arguments error
-	argumentsError:
-	if errorArgs {
-		log.Fatal("Not valid args\nInsert args in the form: <get/put/delete/append> <key> {<value>}")
-		os.Exit(1)
-	}
-
-
-	// Init variables
-	command 	:= os.Args[1]
-	key 		:= os.Args[2]
-	value 		:= ""
-	if numArgs > 3 {
-		value = os.Args[3]
-	}
 
 	// Init data input for RPC
-	args := &dataformat.Args{Key: key, Value: value}
+	args := &dataformat.Args{Key: key, Value: value, Timestamp: timestamp}
 
 	// Asynchronous call RPC
 	if strings.EqualFold(command,"get") {
@@ -65,10 +45,6 @@ func main()  {
 	} else if strings.EqualFold(command,"put") {
 
 		// PUT body
-		if numArgs < 4 {
-			errorArgs = true
-			goto argumentsError
-		}
 		reply := new(dataformat.Data)
 		log.Printf("Asynchronous call to RPC server")
 
@@ -99,10 +75,6 @@ func main()  {
 	} else if strings.EqualFold(command,"append") {
 
 		// APPEND body
-		if numArgs < 4 {
-			errorArgs = true
-			goto argumentsError
-		}
 		reply := new(dataformat.Data)
 		log.Printf("Asynchronous call to RPC server")
 
@@ -116,9 +88,6 @@ func main()  {
 
 
 
-	}else {
-		errorArgs = true
-		goto argumentsError
 	}
 
 

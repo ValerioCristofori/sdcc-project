@@ -2,6 +2,7 @@ package main
 
 
 import (
+
 	"fmt"
 	"log"
 	"net"
@@ -10,18 +11,26 @@ import (
 
 	"sdcc-project/rpc-logic/dataformat"
 )
-
+// server conf
 var path  		= "/"
 var debugPath 	= "/debug"
 var port 		= 12345
 
+// data conf
 var df *dataformat.Dataformat
+
+
+
 
 func main()  {
 
 	//Create an instance of struct
 	df = new(dataformat.Dataformat)
+
+	// Init
 	dataformat.InitMap()
+	InitDynamo()
+
 	// Register a new RPC server and the struct we created above.
 	server := rpc.NewServer()
 	err := server.RegisterName("Dataformat", df) // important for calling right func

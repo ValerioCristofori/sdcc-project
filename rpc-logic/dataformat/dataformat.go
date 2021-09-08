@@ -2,12 +2,14 @@ package dataformat
 
 import (
 	"errors"
+	"fmt"
 	"time"
 )
 
 type Args struct {
 	Key string
 	Value string
+	Timestamp time.Time
 }
 
 type Data struct {
@@ -30,7 +32,7 @@ func (t *Dataformat) Get(args Args, dataResult *Data) error {
 	if d, found := datastore[args.Key]; found {
 		*dataResult = d
 	} else {
-		return errors.New("key not in datastore")
+		return errors.New(fmt.Sprintf("key %s not in datastore",args.Key) )
 	}
 	return nil
 }
@@ -55,7 +57,7 @@ func (t *Dataformat) Delete(args Args, dataResult *Data) error {
 	if _, found := datastore[args.Key]; found {
 		delete(datastore, args.Key)
 	}else {
-		return errors.New("key not in datastore")
+		return errors.New(fmt.Sprintf("key %s not in datastore",args.Key) )
 	}
 	return nil
 }
