@@ -16,7 +16,7 @@ var svc *dynamodb.DynamoDB
 var tableName 	= "SensorData"
 
 
-func GetData() (*dataformat.Data, error) {
+func GetData(key string) (*dataformat.Data, error) {
 
 	// Call GetItem to get the item from the table.
 	// If we encounter an error, print the error message.
@@ -24,22 +24,19 @@ func GetData() (*dataformat.Data, error) {
 	result, err := svc.GetItem(&dynamodb.GetItemInput{
 		TableName: aws.String(tableName),
 		Key: map[string]*dynamodb.AttributeValue{
-			"Year": {
-				N: aws.String(movieYear),
-			},
-			"Title": {
-				S: aws.String(movieName),
+			"Key": {
+				S: aws.String(key),
 			},
 		},
 	})
 	if err != nil {
-		log.Fatalf("Got error calling GetItem: %s", err)
+		log.Fatalf("Got error calling GetData: %s", err)
 	}
 
 	// If an item was returned, unmarshall the return value and display values.
 
 	if result.Item == nil {
-		msg := "Could not find '" + *title + "'"
+		//msg := "Could not find '" +  + "'"
 		return nil, errors.New(msg)
 	}
 
