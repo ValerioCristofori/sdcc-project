@@ -86,6 +86,33 @@ func PutData(data *dataformat.Data) {
 }
 
 
+func DeleteData(key string){
+
+	// Delete the data from the table.
+	// If we encounter an error, print the error message.
+	// Otherwise, display a message that the item was deleted. 
+	input := &dynamodb.DeleteItemInput{
+    Key: map[string]*dynamodb.AttributeValue{
+        "Year": {
+            N: aws.String(movieYear),
+        },
+        "Title": {
+            S: aws.String(movieName),
+        },
+    },
+    TableName: aws.String(tableName),
+}
+
+_, err := svc.DeleteItem(input)
+if err != nil {
+    log.Fatalf("Got error calling DeleteData: %s", err)
+}
+
+fmt.Println("Deleted '" + movieName + "' (" + movieYear + ") from table " + tableName)
+
+}
+
+
 func createTable() {
 	// Call CreateTable.
 	// If an error occurs, print the error and exit.
@@ -93,12 +120,8 @@ func createTable() {
 	input := &dynamodb.CreateTableInput{
 		AttributeDefinitions: []*dynamodb.AttributeDefinition{
 			{
-				AttributeName: aws.String("Year"),
-				AttributeType: aws.String("N"),
-			},
-			{
-				AttributeName: aws.String("Title"),
-				AttributeType: aws.String("S"),
+				AttributeName: aws.String("Key"),
+				AttributeType: aws.String("S"), // type string
 			},
 		},
 		KeySchema: []*dynamodb.KeySchemaElement{
