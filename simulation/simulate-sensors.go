@@ -5,7 +5,7 @@ import (
 	"log"
 	"math/rand"
 	"os"
-	"sdcc-project/rpc-logic/client"
+	"sdcc-project/client"
 	"time"
 )
 

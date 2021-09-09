@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"log"
 	"net/rpc"
-	"sdcc-project/rpc-logic/dataformat"
+	"sdcc-project/dataformat"
 	"strings"
 	"time"
 )

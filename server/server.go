@@ -9,7 +9,7 @@ import (
 	"net/http"
 	"net/rpc"
 
-	"sdcc-project/rpc-logic/dataformat"
+	"sdcc-project/dataformat"
 )
 // server conf
 var path  		= "/"
@@ -29,7 +29,7 @@ func main()  {
 
 	// Init
 	dataformat.InitMap()
-	InitDynamo()
+	//InitDynamo()
 
 	// Register a new RPC server and the struct we created above.
 	server := rpc.NewServer()

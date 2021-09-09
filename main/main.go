@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"sdcc-project/rpc-logic/client"
+	"sdcc-project/client"
 	"strings"
 	"time"
 )
@@ -22,38 +22,37 @@ func main()  {
 		var key			= ""
 		var value 		= ""
 
-		consoleReader := bufio.NewReader(os.Stdin)
+		scanner := bufio.NewScanner(os.Stdin)
 		fmt.Print(">")
 		//********************************************************* Problem last char
-		input, _ := consoleReader.ReadString('\n')
-		input = strings.ToLower(input)
-		if strings.HasPrefix(input, "bye") {
+		scanner.Scan()
+		in := scanner.Text()
+		arguments := strings.Split(in, " ")
+		if strings.HasPrefix(arguments[0], "bye") {
 			fmt.Println("Good bye!")
 			os.Exit(0)
 		}
 
-		// Parsing the user input
-		stringTokens := strings.Split(input," ")
-		if len(stringTokens) < 2 {
+		if len(arguments) < 2 {
 			log.Fatal("Not valid args\nInsert args in the form: <get/put/delete/append> <key> {<value>}")
 			os.Exit(1)
 		}
-		command = stringTokens[0]
-		key = stringTokens[1]
-		if len(stringTokens) > 2 {
-			value = stringTokens[2]
+		command = arguments[0]
+		key = arguments[1]
+		if len(arguments) > 2 {
+			value = arguments[2]
 		}
 		timestamp := time.Now()
 
 		// Controllo sintattico
 		switch command {
-		case "put": if len(stringTokens) < 3 {
+		case "put": if len(arguments) < 3 {
 			log.Fatal("Not valid args\nInsert args in the form: <get/put/delete/append> <key> {<value>}")
 			os.Exit(1)
 		}else{
 			break
 		}
-		case "append": if len(stringTokens) < 3 {
+		case "append": if len(arguments) < 3 {
 			log.Fatal("Not valid args\nInsert args in the form: <get/put/delete/append> <key> {<value>}")
 			os.Exit(1)
 		}else{
