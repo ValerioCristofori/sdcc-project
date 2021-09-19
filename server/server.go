@@ -18,6 +18,9 @@ var(
 	beatPort	= 8088
 )
 
+// log for fault recovery
+
+
 // data conf
 var df *Dataformat
 
@@ -45,6 +48,7 @@ func serveData(){
 
 	// Init
 	InitMap()
+	createLogFile()
 	//InitDynamo()
 
 	// Register a new RPC server and the struct we created above.

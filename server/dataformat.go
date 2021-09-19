@@ -3,6 +3,8 @@ package main
 import (
 	"errors"
 	"fmt"
+	"log"
+	"os"
 	"sync"
 	"time"
 )
@@ -25,9 +27,22 @@ type Dataformat int //edge node
 // mutex for sync
 var mutex = sync.RWMutex{}
 
+// logFile all operations to datastore are registered here
+var logFile *os.File
+
 func InitMap() error {
 	datastore = make(map[string]Data)
 	return nil
+}
+
+func createLogFile() {
+	file, err := os.OpenFile("operations.log", os.O_RDWR | os.O_CREATE | os.O_APPEND, 0666)
+	if err != nil {
+		log.Fatalf("error opening file: %v", err)
+	}
+	logFile = file
+	log.SetOutput(logFile)
+
 }
 
 func (t *Dataformat) Get(args Args, dataResult *Data) error {
@@ -38,6 +53,8 @@ func (t *Dataformat) Get(args Args, dataResult *Data) error {
 	} else {
 		return errors.New(fmt.Sprintf("key %s not in datastore",args.Key) )
 	}
+	// timestamp of the PUT operation
+	log.Printf("GET: key:%s value:%s timestamp:%s \n", args.Key, dataResult.Value, dataResult.Timestamp.String()  )
 	return nil
 }
 
@@ -51,7 +68,7 @@ func (t *Dataformat) Put(args Args, dataResult *Data) error {
 	mutex.Lock()
 	datastore[args.Key] = data
 	mutex.Unlock()
-	//fmt.Printf("value: %s\ntimestamp: %s\n", data.Value, data.Timestamp.String()  )
+	log.Printf("PUT: key:%s value:%s timestamp:%s \n", args.Key, data.Value, data.Timestamp.String()  )
 	// Return data to the caller
 	*dataResult = data
 
@@ -66,6 +83,7 @@ func (t *Dataformat) Delete(args Args, dataResult *Data) error {
 	}else {
 		return errors.New(fmt.Sprintf("key %s not in datastore",args.Key) )
 	}
+	log.Printf("DELETE: key:%s \n", args.Key )
 	return nil
 }
 
@@ -89,6 +107,7 @@ func (t *Dataformat) Append(args Args, dataResult *Data) error {
 	mutex.Unlock()
 	// Return data to the caller
 	*dataResult = data
+	log.Printf("APPEND: key:%s value:%s timestamp:%s \n", args.Key, data.Value, data.Timestamp.String()  )
 
 	return nil
 }
