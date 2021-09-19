@@ -1,34 +1,50 @@
 package main
 
-
 import (
-
 	"fmt"
 	"log"
 	"net"
 	"net/http"
 	"net/rpc"
-
-	"sdcc-project/dataformat"
+	"net/rpc/jsonrpc"
+	"os"
+	"syscall"
 )
 // server conf
-var path  		= "/"
-var debugPath 	= "/debug"
-var port 		= 12345
+var(
+	path  		= "/"
+	debugPath 	= "/debug"
+	port 		= 12345
+	beatPort	= 8088
+)
 
 // data conf
-var df *dataformat.Dataformat
+var df *Dataformat
+
+// RpcHeartBeat type for heart beat routine
+type RpcHeartBeat int
+
+type ReplyMessage struct {
+	Ack bool
+	TaskStatus bool
+}
 
 
 
+func (r *RpcHeartBeat) HeartBeat(m int, reply *ReplyMessage) error {
+	reply.Ack = true
 
-func main()  {
+	//Traverse the task queue here
+	reply.TaskStatus = true
+	return nil
+}
 
+func serveData(){
 	//Create an instance of struct
-	df = new(dataformat.Dataformat)
+	df = new(Dataformat)
 
 	// Init
-	dataformat.InitMap()
+	InitMap()
 	//InitDynamo()
 
 	// Register a new RPC server and the struct we created above.
@@ -52,5 +68,43 @@ func main()  {
 	if err != nil {
 		log.Fatal("Serve error: ", err)
 	}
-
 }
+
+func serveHeartBeat() {
+	// Create TCP Listener for heart beat
+	rpcListener := new(RpcHeartBeat)
+	rpc.Register(rpcListener)
+
+	tcpAddr, err := net.ResolveTCPAddr("tcp", fmt.Sprintf(":%d", beatPort) )
+	if err != nil {
+		fmt.Println("Fatal error ", err.Error())
+		os.Exit(1)
+	}
+
+	listener, err := net.ListenTCP("tcp", tcpAddr)
+	if err != nil {
+		fmt.Println("Fatal error ", err.Error())
+		os.Exit(1)
+	}
+
+	for {
+		conn, err := listener.Accept()
+		if err != nil {
+			continue
+		}
+		jsonrpc.ServeConn(conn)
+		fmt.Println("Start listening")
+	}
+}
+
+
+func main()  {
+
+	go serveData()
+
+	go serveHeartBeat()
+
+	syscall.Pause()
+}
+
+

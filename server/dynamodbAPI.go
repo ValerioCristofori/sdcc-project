@@ -1,22 +1,15 @@
 package main
 
 import (
-	"errors"
-	"fmt"
-	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/dynamodb"
-	"github.com/aws/aws-sdk-go/service/dynamodb/dynamodbattribute"
-	"log"
-	"sdcc-project/rpc-logic/dataformat"
 )
 
 // aws-dynamoDB conf
 var svc *dynamodb.DynamoDB
 var tableName 	= "SensorData"
 
-
-func GetData(key string) (*dataformat.Data, error) {
+/*
+func GetData(key string) (*Data, error) {
 
 	// Call GetItem to get the item from the table.
 	// If we encounter an error, print the error message.
@@ -40,7 +33,7 @@ func GetData(key string) (*dataformat.Data, error) {
 		return nil, errors.New(msg)
 	}
 
-	data := dataformat.Data{}
+	data := Data{}
 
 	err = dynamodbattribute.UnmarshalMap(result.Item, &data)
 	if err != nil {
@@ -55,7 +48,7 @@ func GetData(key string) (*dataformat.Data, error) {
 	//fmt.Println("Rating:", item.Rating)
 }
 
-func PutData(data *dataformat.Data) {
+func PutData(data *Data) {
 
 	// Marshall that data into a map of AttributeValue objects.
 	av, err := dynamodbattribute.MarshalMap(data)
@@ -132,7 +125,7 @@ func createTable() {
 			WriteCapacityUnits: aws.Int64(10),
 		},
 		TableName: aws.String(tableName),
-	}
+	}dataformat.
 
 	_, err := svc.CreateTable(input)
 	if err != nil {
@@ -159,3 +152,4 @@ func InitDynamo()  {
 	createTable()
 
 }
+**/

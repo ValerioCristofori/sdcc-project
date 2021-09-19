@@ -1,0 +1,34 @@
+version: "3.0"
+services:
+  master:
+    container_name: master
+    build: ./master
+    depends_on:
+      - edge-node-1
+      - edge-node-2
+      - edge-node-3
+
+
+  client-1:
+    container_name: client-1
+    build: ./client
+    depends_on:
+      - master
+    tty: true
+  client-2:
+    container_name: client-2
+    build: ./client
+    depends_on:
+      - master
+    tty: true
+
+
+  edge-node-1:
+    container_name: edge-node-1
+    build: ./server
+  edge-node-2:
+    container_name: edge-node-2
+    build: ./server
+  edge-node-3:
+    container_name: edge-node-3
+    build: ./server

@@ -1,38 +1,88 @@
-package client
+package main
 
 
 import (
 	"fmt"
 	"log"
+	"math/rand"
 	"net/rpc"
-	"sdcc-project/dataformat"
 	"strings"
 	"time"
 )
 
 //address and port on which RPC server is listening
-var port 	= 12345
-var addr 	= fmt.Sprintf( "localhost:%d", port)
+var(
+	port 		= 12345
+ 	masterPort 	= 8080
+ 	masterAddr 	= fmt.Sprintf( "master:%d", masterPort)
+ 	edgeAddr string
+)
+// random simulation rtt
+var rangeRTT int64 = 20
 
+func SetEdgeAddress()  {
+	// RPC request to master:8080
+	// retrieve list all edge node addresses
+	// Try to connect to masterAddr using HTTP protocol
+	listAddresses := new([]string)
+	var client *rpc.Client
 
-func RpcEdgeNode(command string, key string, value string, timestamp time.Time )  {
-
-	// Try to connect to addr using HTTP protocol
-	client, err := rpc.DialHTTP("tcp", addr)
+	// Try to connect to master
+	client, err := rpc.DialHTTP("tcp", masterAddr)
 	if err != nil {
-		log.Fatal("Error in dialing: ", err)
+		log.Println("Error in dialing: ", err)
 	}
 	defer client.Close()
 
+
+	// Call remote procedure
+	log.Printf("Synchronous call to RPC server")
+	err = client.Call("Listener.GetAddresses", 0, listAddresses)
+	if err != nil {
+		log.Fatal("Error in Listener.GetAddresses: ", err)
+	}
+
+	// Ping all the addresses and set Edge node the lower latency one
+	var min int64 = 9223372036854775807
+	for _, address := range *listAddresses {
+		fmt.Printf("Ping %s", address)
+		dst, ret, err := Ping(address)
+		// add bias simulating rtt
+		rtt := ret.Milliseconds()
+		rtt = rtt + rand.Int63n(rangeRTT)
+		log.Printf("Ping %s (%s): %d\n", address, dst, rtt)
+		if err != nil {
+			panic(err)
+		}
+		if rtt < min {
+			min = rtt
+			edgeAddr = address
+		}
+
+	}
+
+	edgeAddr = fmt.Sprintf("%s:%d", edgeAddr , port )
+}
+
+func RpcEdgeNode(command string, key string, value string, timestamp time.Time )  {
+
+	var client *rpc.Client
+
+	// Try to connect to edgeAddr using HTTP protocol
+	client, err := rpc.DialHTTP("tcp", edgeAddr)
+	if err != nil{
+		log.Fatal("Error in dialing: ", err)
+	}
+
 	// Init data input for RPC
-	args := &dataformat.Args{Key: key, Value: value, Timestamp: timestamp}
+	args := &Args{Key: key, Value: value, Timestamp: timestamp}
 
 	// Asynchronous call RPC
 	if strings.EqualFold(command,"get") {
 
 		// GET body
-		reply := new(dataformat.Data)
-		log.Printf("Asynchronous call to RPC server")
+		reply := new(Data)
+		//log.Printf("Asynchronous call to RPC server")
 
 		call := client.Go("Dataformat.Get", args, reply, nil)
 		call = <-call.Done
@@ -45,8 +95,8 @@ func RpcEdgeNode(command string, key string, value string, timestamp time.Time )
 	} else if strings.EqualFold(command,"put") {
 
 		// PUT body
-		reply := new(dataformat.Data)
-		log.Printf("Asynchronous call to RPC server")
+		reply := new(Data)
+		//log.Printf("Asynchronous call to RPC server")
 
 		call := client.Go("Dataformat.Put", args, reply, nil)
 		call = <-call.Done
@@ -54,14 +104,13 @@ func RpcEdgeNode(command string, key string, value string, timestamp time.Time )
 			log.Fatal("Error in Dataformat.Put: ", call.Error.Error())
 		}
 
-		fmt.Printf("Dataformat.Put:\n Key:\t%s\nValue:\n%s\nTimestamp:\t%s\n", key, reply.Value, reply.Timestamp.String() )
+		//fmt.Printf("Dataformat.Put:\n Key:\t%s\nValue:\n%s\nTimestamp:\t%s\n", key, reply.Value, reply.Timestamp.String() )
 
 
 	} else if strings.EqualFold(command,"delete") {
-
 		// DELETE body
-		reply := new(dataformat.Data)
-		log.Printf("Asynchronous call to RPC server")
+		reply := new(Data)
+		//log.Printf("Asynchronous call to RPC server")
 
 		call := client.Go("Dataformat.Delete", args, reply, nil)
 		call = <-call.Done
@@ -75,8 +124,8 @@ func RpcEdgeNode(command string, key string, value string, timestamp time.Time )
 	} else if strings.EqualFold(command,"append") {
 
 		// APPEND body
-		reply := new(dataformat.Data)
-		log.Printf("Asynchronous call to RPC server")
+		reply := new(Data)
+		//log.Printf("Asynchronous call to RPC server")
 
 		call := client.Go("Dataformat.Append", args, reply, nil)
 		call = <-call.Done
@@ -84,7 +133,7 @@ func RpcEdgeNode(command string, key string, value string, timestamp time.Time )
 			log.Fatal("Error in Dataformat.Append: ", call.Error.Error())
 		}
 
-		fmt.Printf("Dataformat.Append:\n Key:\t%s\nValue:\n%s\nTimestamp:\t%s\n", key, reply.Value, reply.Timestamp.String() )
+		//fmt.Printf("Dataformat.Append:\n Key:\t%s\nValue:\n%s\nTimestamp:\t%s\n", key, reply.Value, reply.Timestamp.String() )
 
 
 
