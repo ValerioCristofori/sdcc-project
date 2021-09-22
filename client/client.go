@@ -20,6 +20,10 @@ var(
 // random simulation rtt
 var rangeRTT int64 = 20
 
+func SetEdgeAddressTest(){
+	edgeAddr = fmt.Sprintf("localhost:%d", port)
+}
+
 func SetEdgeAddress()  {
 	// RPC request to master:8080
 	// retrieve list all edge node addresses
