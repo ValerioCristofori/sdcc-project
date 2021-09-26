@@ -7,6 +7,7 @@ import (
 	"math/rand"
 	"os"
 	"strings"
+	"syscall"
 	"time"
 )
 
@@ -38,12 +39,7 @@ func (s *Sensor) getMeasure() error {
 	return nil
 }
 
-
-func main()  {
-
-	// Set right edge node address
-	SetEdgeAddress()
-
+func productionSite()  {
 	// Init sensors
 	fmt.Printf("Simulate %d sensors", NSensors)
 
@@ -62,9 +58,10 @@ func main()  {
 		}(&sensors[sensorIndex])
 	}
 
-	time.Sleep(20 * time.Second)
 	fmt.Println("Done!")
+}
 
+func consumptionSite()  {
 	// Provide user interface as also consumption site
 	// BOUNDARY
 	// run forever until user issue bye
@@ -120,5 +117,16 @@ func main()  {
 		RpcEdgeNode(command, key, value, timestamp )
 
 	}
+}
 
+func main()  {
+
+	time.Sleep(10 * time.Second)
+	// Set right edge node address
+	SetEdgeAddress()
+
+	go productionSite()
+
+	//consumptionSite()
+	syscall.Pause()
 }

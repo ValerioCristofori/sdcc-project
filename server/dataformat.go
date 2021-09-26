@@ -4,9 +4,16 @@ import (
 	"errors"
 	"fmt"
 	"log"
-	"os"
 	"sync"
 	"time"
+)
+
+// operations
+const (
+	PUT int = iota
+	GET
+	APPEND
+	DELETE
 )
 
 type Args struct {
@@ -27,23 +34,11 @@ type Dataformat int //edge node
 // mutex for sync
 var mutex = sync.RWMutex{}
 
-// logFile all operations to datastore are registered here
-var logFile *os.File
-
 func InitMap() error {
 	datastore = make(map[string]Data)
 	return nil
 }
 
-func createLogFile() {
-	file, err := os.OpenFile("operations.log", os.O_RDWR | os.O_CREATE | os.O_APPEND, 0666)
-	if err != nil {
-		log.Fatalf("error opening file: %v", err)
-	}
-	logFile = file
-	log.SetOutput(logFile)
-
-}
 
 func (t *Dataformat) Get(args Args, dataResult *Data) error {
 
@@ -60,7 +55,8 @@ func (t *Dataformat) Get(args Args, dataResult *Data) error {
 
 
 func (t *Dataformat) Put(args Args, dataResult *Data) error {
-
+	op := PUT
+	rfRPC.rf.Start(Command{Op: op,Key: args.Key,Value: args.Value})
 
 	// Build data struct
 	data := Data{args.Value, time.Now()}
@@ -68,7 +64,7 @@ func (t *Dataformat) Put(args Args, dataResult *Data) error {
 	mutex.Lock()
 	datastore[args.Key] = data
 	mutex.Unlock()
-	log.Printf("PUT: key:%s value:%s timestamp:%s \n", args.Key, data.Value, data.Timestamp.String()  )
+
 	// Return data to the caller
 	*dataResult = data
 

@@ -3,10 +3,6 @@ services:
   master:
     container_name: master
     build: ./master
-    depends_on:
-      - edge-node-1
-      - edge-node-2
-      - edge-node-3
 
 
   client-1:
@@ -26,9 +22,15 @@ services:
   edge-node-1:
     container_name: edge-node-1
     build: ./server
+    depends_on:
+      - master
   edge-node-2:
     container_name: edge-node-2
     build: ./server
+    depends_on:
+      - master
   edge-node-3:
     container_name: edge-node-3
     build: ./server
+    depends_on:
+      - master

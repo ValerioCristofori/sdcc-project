@@ -1,4 +1,4 @@
-module client
+module sdcc/client
 
 go 1.17
 
