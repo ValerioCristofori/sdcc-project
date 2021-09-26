@@ -51,6 +51,7 @@ type Command struct{
 	Op			int
 	Key 		string
 	Value 		string
+	Timestamp	time.Time
 }
 
 func (c *Command) toString() string{
@@ -63,7 +64,7 @@ func (c *Command) toString() string{
 	default:
 		operation = ""
 	}
-	return fmt.Sprintf("{Op: %s;Key: %s;Value: %s}", operation, c.Key, c.Value)
+	return fmt.Sprintf("{Op: %s;Key: %s;Value: %s;Timestamp: %s}", operation, c.Key, c.Value, c.Timestamp.String())
 }
 
 // LogEntry structure

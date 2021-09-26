@@ -3,7 +3,6 @@ package main
 import (
 	"errors"
 	"fmt"
-	"log"
 	"sync"
 	"time"
 )
@@ -41,7 +40,8 @@ func InitMap() error {
 
 
 func (t *Dataformat) Get(args Args, dataResult *Data) error {
-
+	op := GET
+	rfRPC.rf.Start(Command{Op: op,Key: args.Key,Timestamp: args.Timestamp})
 	// Get from the datastore
 	if d, found := datastore[args.Key]; found {
 		*dataResult = d
@@ -49,14 +49,13 @@ func (t *Dataformat) Get(args Args, dataResult *Data) error {
 		return errors.New(fmt.Sprintf("key %s not in datastore",args.Key) )
 	}
 	// timestamp of the PUT operation
-	log.Printf("GET: key:%s value:%s timestamp:%s \n", args.Key, dataResult.Value, dataResult.Timestamp.String()  )
 	return nil
 }
 
 
 func (t *Dataformat) Put(args Args, dataResult *Data) error {
 	op := PUT
-	rfRPC.rf.Start(Command{Op: op,Key: args.Key,Value: args.Value})
+	rfRPC.rf.Start(Command{Op: op,Key: args.Key,Value: args.Value,Timestamp: args.Timestamp})
 
 	// Build data struct
 	data := Data{args.Value, time.Now()}
@@ -72,19 +71,20 @@ func (t *Dataformat) Put(args Args, dataResult *Data) error {
 }
 
 func (t *Dataformat) Delete(args Args, dataResult *Data) error {
-
+	op := DELETE
+	rfRPC.rf.Start(Command{Op: op,Key: args.Key,Timestamp: args.Timestamp})
 	// Delete in the Datastore
 	if _, found := datastore[args.Key]; found {
 		delete(datastore, args.Key)
 	}else {
 		return errors.New(fmt.Sprintf("key %s not in datastore",args.Key) )
 	}
-	log.Printf("DELETE: key:%s \n", args.Key )
 	return nil
 }
 
 func (t *Dataformat) Append(args Args, dataResult *Data) error {
-
+	op := APPEND
+	rfRPC.rf.Start(Command{Op: op,Key: args.Key,Value: args.Value,Timestamp: args.Timestamp})
 	// Build data struct
 	data := Data{args.Value, time.Now()}
 	// Save in the Datastore
@@ -103,7 +103,6 @@ func (t *Dataformat) Append(args Args, dataResult *Data) error {
 	mutex.Unlock()
 	// Return data to the caller
 	*dataResult = data
-	log.Printf("APPEND: key:%s value:%s timestamp:%s \n", args.Key, data.Value, data.Timestamp.String()  )
 
 	return nil
 }
