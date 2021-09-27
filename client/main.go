@@ -1,12 +1,10 @@
 package main
 
 import (
-	"bufio"
 	"fmt"
 	"log"
 	"math/rand"
 	"os"
-	"strings"
 	"syscall"
 	"time"
 )
@@ -26,14 +24,24 @@ func (s *Sensor) getMeasure() error {
 	// Put the first measure
 	measure := rand.Float64()*rangeFloats
 	timestamp := time.Now()
+	if len(leaderEdgeAddr) > 0 {
+		RpcSingleEdgeNode("put", s.Id, fmt.Sprintf("%f", measure), timestamp, leaderEdgeAddr )
+	}else {
+		RpcBroadcastEdgeNode("put", s.Id, fmt.Sprintf("%f", measure), timestamp)
+	}
 
-		RpcEdgeNode("put", s.Id, fmt.Sprintf("%f", measure), timestamp )
 
 	// Append every 5 seconds
 	for range time.Tick(5 * time.Second){
 		measure := rand.Float64()*rangeFloats
 		timestamp := time.Now()
-		RpcEdgeNode("append", s.Id, fmt.Sprintf("%f", measure), timestamp )
+		if len(leaderEdgeAddr) > 0 {
+			fmt.Println("RPC Leader address" + leaderEdgeAddr)
+			RpcSingleEdgeNode("append", s.Id, fmt.Sprintf("%f", measure), timestamp, leaderEdgeAddr )
+		}else {
+			fmt.Println("RPC broadcast")
+			RpcBroadcastEdgeNode("append", s.Id, fmt.Sprintf("%f", measure), timestamp)
+		}
 	}
 
 	return nil
@@ -61,72 +69,15 @@ func productionSite()  {
 	fmt.Println("Done!")
 }
 
-func consumptionSite()  {
-	// Provide user interface as also consumption site
-	// BOUNDARY
-	// run forever until user issue bye
-	for {
-		var command 	= ""
-		var key			= ""
-		var value 		= ""
 
-		scanner := bufio.NewScanner(os.Stdin)
-		fmt.Print(">")
-		scanner.Scan()
-		in := scanner.Text()
-		arguments := strings.Split(in, " ")
-		if strings.HasPrefix(arguments[0], "bye") {
-			fmt.Println("Good bye!")
-			os.Exit(0)
-		}
-
-		if len(arguments) < 2 {
-			log.Fatal("Not valid args\nInsert args in the form: <get/put/delete/append> <key> {<value>}")
-			os.Exit(1)
-		}
-		command = arguments[0]
-		key = arguments[1]
-		if len(arguments) > 2 {
-			value = arguments[2]
-		}
-		timestamp := time.Now()
-
-		// Controllo sintattico
-		switch command {
-		case "put": if len(arguments) < 3 {
-			log.Fatal("Not valid args\nInsert args in the form: <get/put/delete/append> <key> {<value>}")
-			os.Exit(1)
-		}else{
-			break
-		}
-		case "append": if len(arguments) < 3 {
-			log.Fatal("Not valid args\nInsert args in the form: <get/put/delete/append> <key> {<value>}")
-			os.Exit(1)
-		}else{
-			break
-		}
-		case "delete":
-		case "get":
-			break
-		default:
-			log.Fatal("Not valid args\nInsert args in the form: <get/put/delete/append> <key> {<value>}")
-			os.Exit(1)
-		}
-
-		//call RPC func
-		RpcEdgeNode(command, key, value, timestamp )
-
-	}
-}
 
 func main()  {
 
 	time.Sleep(10 * time.Second)
 	// Set right edge node address
-	SetEdgeAddress()
+	GetEdgeAddresses()
 
 	go productionSite()
 
-	//consumptionSite()
 	syscall.Pause()
 }

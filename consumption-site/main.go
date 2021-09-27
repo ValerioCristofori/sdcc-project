@@ -7,35 +7,9 @@ import (
 	"os"
 	"strings"
 	"time"
-	"testing"
 )
 
-
-func TestClient(t *testing.T)  {
-
-	SetEdgeAddressTest()
-
-	// Init sensors
-	fmt.Printf("Simulate %d sensors", NSensors)
-
-	for i := 0; i < NSensors; i++ {
-		id := fmt.Sprint("id-sensor-",i)
-		sensors = append( sensors, Sensor{id})
-	}
-
-	for sensorIndex := range sensors {
-		go func(currentSensor *Sensor) {
-			err := currentSensor.getMeasure()
-			if err != nil {
-				log.Fatal("error in simulating measure")
-				os.Exit(1)
-			}
-		}(&sensors[sensorIndex])
-	}
-
-	time.Sleep(20 * time.Second)
-	fmt.Println("Done!")
-
+func consumptionSite()  {
 	// Provide user interface as also consumption site
 	// BOUNDARY
 	// run forever until user issue bye
@@ -88,8 +62,20 @@ func TestClient(t *testing.T)  {
 		}
 
 		//call RPC func
-		RpcSingleEdgeNode(command, key, value, timestamp )
+		if len(leaderEdgeAddr) > 0 {
+			RpcSingleEdgeNode(command, key, value, timestamp, leaderEdgeAddr)
+		}else {
+			RpcBroadcastEdgeNode(command, key, value, timestamp )
+		}
+
 
 	}
+}
 
+func main()  {
+	time.Sleep(10 * time.Second)
+	// Set right edge node address
+	GetEdgeAddresses()
+
+	consumptionSite()
 }
