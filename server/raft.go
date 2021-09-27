@@ -86,6 +86,7 @@ type Raft struct {
 	currentTerm int        // latest term server has seen
 	votedFor    int        // candidateID that received vote in current term
 	logs        []LogEntry // log entries
+	indexOp		int
 
 	// volatile state on all servers
 	commitIndex int // index of highest log entry known to be committed
@@ -399,7 +400,7 @@ func (rfRPC *RaftRPC) AppendEntries(args *AppendEntriesArgs, reply *AppendEntrie
 
 		// append nay new entries not already in the log
 		rf.logs = append(rf.logs[:args.PrevLogIndex+1-firstIndex], args.Entries...)
-
+		doCommandsLog(rf)
 		reply.NextIndex = rf.getLastIndex() + 1
 		reply.Success = true
 	}
@@ -778,6 +779,7 @@ func Make(peers []*rpc.Client, me int,
 	rf.commitIndex = 0
 	rf.lastApplied = 0
 	rf.logs = append(rf.logs, LogEntry{Term: 0})
+	rf.indexOp = 0
 
 	rf.heartBeatCh = make(chan bool, 100)
 	rf.grantVoteCh = make(chan bool, 100)

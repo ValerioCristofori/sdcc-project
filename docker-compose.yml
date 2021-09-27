@@ -6,14 +6,14 @@ services:
 
 
   client-1:
-    container_name: client-1
-    build: ./client
+    container_name: production-site-1
+    build: production-site
     depends_on:
       - master
     tty: true
   client-2:
-    container_name: client-2
-    build: ./client
+    container_name: production-site-2
+    build: production-site
     depends_on:
       - master
     tty: true

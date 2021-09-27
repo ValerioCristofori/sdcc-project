@@ -15,12 +15,12 @@ import (
 
 func InitLambda()  {
 /*
-	// Create Lambda service client
+	// Create Lambda service production-site
     sess := session.Must(session.NewSessionWithOptions(session.Options{
         SharedConfigState: session.SharedConfigEnable,
     }))
 
-    client := lambda.New(sess, &aws.Config{Region: aws.String("us-west-2")})
+    production-site := lambda.New(sess, &aws.Config{Region: aws.String("us-west-2")})
 */
 }
 

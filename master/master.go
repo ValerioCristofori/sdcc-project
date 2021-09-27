@@ -83,7 +83,7 @@ func serveRequests()  {
 
 /*
  * Master node provide monitoring for edge node with heartbeats every 4 seconds
- * Also provide the authentication system for client nodes, listing all the addresses of the edge nodes
+ * Also provide the authentication system for production-site nodes, listing all the addresses of the edge nodes
  */
 func main()  {
 	serveRequests()

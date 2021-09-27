@@ -14,7 +14,7 @@ RUN go mod download
 COPY *.go ./
 
 # create the binary
-RUN go build -o /client
+RUN go build -o /production-site
 
 # run 
-CMD [ "/client" ]
+CMD [ "/production-site" ]

@@ -1,8 +1,6 @@
 package main
 
 import (
-	"errors"
-	"fmt"
 	"sync"
 	"time"
 )
@@ -49,14 +47,7 @@ func InitMap() error {
 func (t *Dataformat) Get(args Args, reply *DataformatReply) error {
 	op := GET
 	rfRPC.rf.Start(Command{Op: op,Key: args.Key,Timestamp: args.Timestamp})
-	// Get from the datastore
-	if d, found := datastore[args.Key]; found {
-		reply.Ack = true
-		*reply.DataResult = d
-	} else {
-		return errors.New(fmt.Sprintf("key %s not in datastore",args.Key) )
-	}
-	// timestamp of the PUT operation
+
 	return nil
 }
 
@@ -70,15 +61,7 @@ func (t *Dataformat) Put(args Args, reply *DataformatReply) error {
 		return nil
 	}
 	reply.Ack = true
-	//// Build data struct
-	//data := Data{args.Value, time.Now()}
-	//// Save in the Datastore
-	//mutex.Lock()
-	//datastore[args.Key] = data
-	//mutex.Unlock()
-	//
-	//// Return data to the caller
-	//*dataResult = data
+
 
 	return nil
 }
@@ -92,12 +75,7 @@ func (t *Dataformat) Delete(args Args, reply *DataformatReply) error {
 		return nil
 	}
 	reply.Ack = true
-	//// Delete in the Datastore
-	//if _, found := datastore[args.Key]; found {
-	//	delete(datastore, args.Key)
-	//}else {
-	//	return errors.New(fmt.Sprintf("key %s not in datastore",args.Key) )
-	//}
+
 	return nil
 }
 
@@ -112,24 +90,7 @@ func (t *Dataformat) Append(args Args, reply *DataformatReply) error {
 
 	reply.Ack = true
 
-	//// Build data struct
-	//data := Data{args.Value, time.Now()}
-	//// Save in the Datastore
-	//mutex.Lock()
-	//if d, found := datastore[args.Key]; found {
-	//	d.Value = d.Value + "\n" + args.Value // dummy append
-	//	d.Timestamp = data.Timestamp
-	//	// update in memory
-	//	datastore[args.Key] = d
-	//	// update the result
-	//	data = d
-	//} else {
-	//	// Normal Put func
-	//	datastore[args.Key] = data
-	//}
-	//mutex.Unlock()
-	//// Return data to the caller
-	//*dataResult = data
+
 
 	return nil
 }

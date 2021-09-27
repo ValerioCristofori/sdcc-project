@@ -44,39 +44,6 @@ var (
 var rfRPC *RaftRPC
 
 
-
-func serveData(){
-	//Create an instance of struct
-	df = new(Dataformat)
-
-	// Init
-	InitMap()
-	//InitDynamo()
-
-	// Register a new RPC server and the struct we created above.
-	server := rpc.NewServer()
-	err := server.RegisterName("Dataformat", df) // important for calling right func
-	if err != nil {
-		log.Fatal("Format of service Datastore is not correct: ", err)
-	}
-	// Register an HTTP handler for RPC messages on rpcPath, and a debugging handler on debugPath
-	server.HandleHTTP(dataPath, dataDebugPath)
-
-	// Listen for incoming messages on port 12345
-	lis, err := net.Listen("tcp", fmt.Sprintf(":%d", port))
-	if err != nil {
-		log.Fatal("Listen error: ", err)
-	}
-	log.Printf("RPC server on port %d", port)
-
-	// Start go's http server on socket specified by listener
-	err = http.Serve(lis, nil)
-	if err != nil {
-		log.Fatal("Serve error: ", err)
-	}
-}
-
-
 func register() {
 	// RPC request to master:8080
 	// retrieve list all edge node addresses
@@ -175,6 +142,25 @@ func startListener(server *rpc.Server) {
 
 }
 
+func doCommandsLog(rf *Raft)  {
+	var i int
+	for i = rf.indexOp; i < len(rf.logs); i++ {
+		logEntry := rf.logs[i]
+		args := &Args{}
+		args.Key = logEntry.Command.Key
+		args.Value = logEntry.Command.Value
+		args.Timestamp = logEntry.Command.Timestamp
+		switch logEntry.Command.Op {
+		case PUT: PutEntry(args)
+		case APPEND: AppendEntry(args)
+		case DELETE: DeleteEntry(args)
+		default:
+			continue
+		}
+	}
+	rf.indexOp = i
+}
+
 
 func getListEdgeNodes() {
 
@@ -227,6 +213,10 @@ func main()  {
 	persister := MakePersister()
 	rfRPC = Make( *listEndPointsRPC, cluster.indexEdgeRequest, persister, nil)
 	addHandlerRaft(serverRPC, rfRPC)
+	err := InitMap()
+	if err != nil {
+		log.Fatal("Error in Init Map: ", err)
+	}
 	addHandlerData(serverRPC, new(Dataformat))
 
 
