@@ -1,6 +1,8 @@
 package main
 
 import (
+	"errors"
+	"fmt"
 	"sync"
 	"time"
 )
@@ -45,8 +47,16 @@ func InitMap() error {
 
 
 func (t *Dataformat) Get(args Args, reply *DataformatReply) error {
-	op := GET
-	rfRPC.rf.Start(Command{Op: op,Key: args.Key,Timestamp: args.Timestamp})
+	//op := GET
+	//rfRPC.rf.Start(Command{Op: op,Key: args.Key,Timestamp: args.Timestamp})
+
+	// Get from the datastore
+	if d, found := datastore[args.Key]; found {
+		reply.Ack = true
+		*reply.DataResult = d
+	} else {
+		return errors.New(fmt.Sprintf("key %s not in datastore",args.Key) )
+	}
 
 	return nil
 }
@@ -61,7 +71,8 @@ func (t *Dataformat) Put(args Args, reply *DataformatReply) error {
 		return nil
 	}
 	reply.Ack = true
-
+	//if leader do immediately the op
+	PutEntry(&args)
 
 	return nil
 }
@@ -75,7 +86,8 @@ func (t *Dataformat) Delete(args Args, reply *DataformatReply) error {
 		return nil
 	}
 	reply.Ack = true
-
+	//if leader do immediately the op
+	DeleteEntry(&args)
 	return nil
 }
 
@@ -87,10 +99,8 @@ func (t *Dataformat) Append(args Args, reply *DataformatReply) error {
 		reply.Ack = false
 		return nil
 	}
-
 	reply.Ack = true
-
-
-
+	//if leader do immediately the op
+	AppendEntry(&args)
 	return nil
 }

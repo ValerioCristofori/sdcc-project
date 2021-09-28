@@ -32,6 +32,10 @@ type Cluster struct {
 	indexEdgeRequest 	int
 }
 
+func (c *Cluster) toString() string{
+	return fmt.Sprintf("Cluster: %s, My position: %d", c.Nodes, c.indexEdgeRequest)
+}
+
 // data conf
 var (
 	df 				*Dataformat
@@ -42,6 +46,8 @@ var (
 
 // interface to RaftRPC
 var rfRPC *RaftRPC
+// channel for newly committed messages
+var applyCh chan ApplyMsg
 
 
 func register() {
@@ -90,18 +96,17 @@ func getMyAddress() string {
 func connectToAllNodes() {
 
 	for _, nameAddress := range cluster.Nodes {
-		if nameAddress != myAddress {
-			address := fmt.Sprintf("%s:%d", nameAddress, port)
-			var client *rpc.Client
+		address := fmt.Sprintf("%s:%d", nameAddress, port)
+		var client *rpc.Client
 
-			// Try to connect to master
-			client, err := rpc.DialHTTP("tcp", address)
-			if err != nil {
-				log.Println("Error in dialing: ", err)
-			}
-
-			*listEndPointsRPC = append( *listEndPointsRPC, client )
+		// Try to connect to master
+		client, err := rpc.DialHTTP("tcp", address)
+		if err != nil {
+			log.Println("Error in dialing: ", err)
 		}
+
+		*listEndPointsRPC = append( *listEndPointsRPC, client )
+
 	}
 }
 
@@ -142,25 +147,6 @@ func startListener(server *rpc.Server) {
 
 }
 
-func doCommandsLog(rf *Raft)  {
-	var i int
-	for i = rf.indexOp; i < len(rf.logs); i++ {
-		logEntry := rf.logs[i]
-		args := &Args{}
-		args.Key = logEntry.Command.Key
-		args.Value = logEntry.Command.Value
-		args.Timestamp = logEntry.Command.Timestamp
-		switch logEntry.Command.Op {
-		case PUT: PutEntry(args)
-		case APPEND: AppendEntry(args)
-		case DELETE: DeleteEntry(args)
-		default:
-			continue
-		}
-	}
-	rf.indexOp = i
-}
-
 
 func getListEdgeNodes() {
 
@@ -195,6 +181,29 @@ func getListEdgeNodes() {
 
 }
 
+func applyChRoutine()  {
+	for m := range applyCh {
+		if m.UseSnapshot{
+			//ignore snapshot
+		}else{
+			args := &Args{}
+			args.Key = m.Command.Key
+			args.Value = m.Command.Value
+			args.Timestamp = m.Command.Timestamp
+			switch m.Command.Op {
+			case PUT: PutEntry(args)
+			case APPEND: AppendEntry(args)
+			case DELETE: DeleteEntry(args)
+			default:
+				continue
+			}
+		}
+
+	}
+}
+
+
+
 func main()  {
 
 	// start configuration and initialization of raft cluster
@@ -203,15 +212,17 @@ func main()  {
 
 	time.Sleep(3 * time.Second)
 	getListEdgeNodes()
-	//var rf = new(Raft)
-	//go startListener(rf)
+
 	serverRPC := rpc.NewServer()
 	go startListener(serverRPC)
 	time.Sleep(3 * time.Second)
 	connectToAllNodes()
 
 	persister := MakePersister()
-	rfRPC = Make( *listEndPointsRPC, cluster.indexEdgeRequest, persister, nil)
+	// listen to messages from Raft indicating newly committed messages.
+	applyCh = make(chan ApplyMsg)
+	go applyChRoutine()
+	rfRPC = Make( *listEndPointsRPC, cluster.indexEdgeRequest, persister, applyCh)
 	addHandlerRaft(serverRPC, rfRPC)
 	err := InitMap()
 	if err != nil {
@@ -219,9 +230,8 @@ func main()  {
 	}
 	addHandlerData(serverRPC, new(Dataformat))
 
-
-
 	syscall.Pause()
+
 }
 
 

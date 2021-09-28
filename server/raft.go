@@ -42,7 +42,7 @@ const (
 // tester) on the same server, via the applyCh passed to Make().
 type ApplyMsg struct {
 	Index       int
-	Command     interface{}
+	Command     Command
 	UseSnapshot bool
 	Snapshot    []byte
 }
@@ -138,9 +138,21 @@ func (rf *Raft) GetPersistSize() int {
 func (rf *Raft) persist() {
 	w := new(bytes.Buffer)
 	e := gob.NewEncoder(w)
-	e.Encode(rf.currentTerm)
-	e.Encode(rf.votedFor)
-	e.Encode(rf.logs)
+	err := e.Encode(rf.currentTerm)
+	if err != nil {
+		log.Fatal("error in encoding: ", err)
+		return
+	}
+	err = e.Encode(rf.votedFor)
+	if err != nil {
+		log.Fatal("error in encoding: ", err)
+		return
+	}
+	err = e.Encode(rf.logs)
+	if err != nil {
+		log.Fatal("error in encoding: ", err)
+		return
+	}
 	data := w.Bytes()
 	rf.persister.SaveRaftState(data)
 }
@@ -153,9 +165,21 @@ func (rf *Raft) readPersist(data []byte) {
 
 	r := bytes.NewBuffer(data)
 	d := gob.NewDecoder(r)
-	d.Decode(&rf.currentTerm)
-	d.Decode(&rf.votedFor)
-	d.Decode(&rf.logs)
+	err := d.Decode(&rf.currentTerm)
+	if err != nil {
+		log.Fatal("error in decoding: ", err)
+		return
+	}
+	err = d.Decode(&rf.votedFor)
+	if err != nil {
+		log.Fatal("error in decoding: ", err)
+		return
+	}
+	err = d.Decode(&rf.logs)
+	if err != nil {
+		log.Fatal("error in decoding: ", err)
+		return
+	}
 }
 
 // InstallSnapshotArgs RPC structure
@@ -400,7 +424,7 @@ func (rfRPC *RaftRPC) AppendEntries(args *AppendEntriesArgs, reply *AppendEntrie
 
 		// append nay new entries not already in the log
 		rf.logs = append(rf.logs[:args.PrevLogIndex+1-firstIndex], args.Entries...)
-		doCommandsLog(rf)
+		//doCommandsLog(rf)
 		reply.NextIndex = rf.getLastIndex() + 1
 		reply.Success = true
 	}
@@ -469,6 +493,7 @@ func (rf *Raft) broadcastAppendEntries() {
 	defer rf.mu.Unlock()
 
 	if rf.state == LEADER {
+		fmt.Println("Init broadcast entries")
 		firstIndex := 0
 		if len(rf.logs) > 0 {
 			firstIndex = rf.logs[0].Index
@@ -476,6 +501,7 @@ func (rf *Raft) broadcastAppendEntries() {
 
 		for i := range rf.peers {
 			if i == rf.me {
+				fmt.Printf("Uguale in ciclo: %d\n", i)
 				continue
 			}
 			if rf.nextIndex[i] > firstIndex {
@@ -491,9 +517,12 @@ func (rf *Raft) broadcastAppendEntries() {
 
 				go func(server int, args AppendEntriesArgs) {
 					reply := AppendEntriesReply{}
+					fmt.Println("Sending entries to: " + cluster.Nodes[i])
+					fmt.Printf("ciclo num: %d\n", i)
 					rf.sendAppendEntries(server, args, &reply)
 				}(i, args)
 			} else {
+				fmt.Printf("Installing snapshots...")
 				var args InstallSnapshotArgs
 				args.Term = rf.currentTerm
 				args.LeaderID = rf.me
@@ -509,7 +538,7 @@ func (rf *Raft) broadcastAppendEntries() {
 		}
 
 		// if there exists and N such at N > commitIndex,
-		// a mojority of matchIndex[i] >= N and log[N].term == currentTerm,
+		// a majority of matchIndex[i] >= N and log[N].term == currentTerm,
 		// then set commitIndex = N
 		nextCommit := rf.commitIndex
 		last := rf.getLastIndex()
@@ -529,8 +558,11 @@ func (rf *Raft) broadcastAppendEntries() {
 			rf.commitIndex = nextCommit
 			select {
 			case rf.commitCh <- true:
-			case <-rf.killCh:
+			case <-rf.killCh:{
+				fmt.Println("Enabled kill channel")
 				return
+
+				}
 			}
 		}
 	}
