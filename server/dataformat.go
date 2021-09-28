@@ -47,17 +47,15 @@ func InitMap() error {
 
 
 func (t *Dataformat) Get(args Args, reply *DataformatReply) error {
-	//op := GET
-	//rfRPC.rf.Start(Command{Op: op,Key: args.Key,Timestamp: args.Timestamp})
-
 	// Get from the datastore
+	mutex.Lock()
 	if d, found := datastore[args.Key]; found {
 		reply.Ack = true
 		*reply.DataResult = d
 	} else {
 		return errors.New(fmt.Sprintf("key %s not in datastore",args.Key) )
 	}
-
+	mutex.Unlock()
 	return nil
 }
 

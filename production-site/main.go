@@ -5,7 +5,6 @@ import (
 	"log"
 	"math/rand"
 	"os"
-	"syscall"
 	"time"
 )
 
@@ -14,15 +13,17 @@ type Sensor struct {
 }
 
 var NSensors = 3
-var rangeFloats float64 = 100.00
+var rangeFloats = 100.00
 var sensors []Sensor
 
 
 
 func (s *Sensor) getMeasure() error {
 
+	rand.Seed(time.Now().UnixNano())
 	// Put the first measure
 	measure := rand.Float64()*rangeFloats
+	fmt.Printf("Measuring %f\n",measure)
 	timestamp := time.Now()
 	if len(leaderEdgeAddr) > 0 {
 		RpcSingleEdgeNode("put", s.Id, fmt.Sprintf("%f", measure), timestamp, leaderEdgeAddr )
@@ -52,7 +53,7 @@ func productionSite()  {
 	fmt.Printf("Simulate %d sensors", NSensors)
 
 	for i := 0; i < NSensors; i++ {
-		id := fmt.Sprint("id-sensor-",i)
+		id := fmt.Sprint("sensor-",i)
 		sensors = append( sensors, Sensor{id})
 	}
 
@@ -65,7 +66,6 @@ func productionSite()  {
 			}
 		}(&sensors[sensorIndex])
 	}
-
 	fmt.Println("Done!")
 }
 
@@ -78,6 +78,7 @@ func main()  {
 	GetEdgeAddresses()
 
 	go productionSite()
+	time.Sleep(20 * time.Second)
 
-	syscall.Pause()
+	//syscall.Pause()
 }

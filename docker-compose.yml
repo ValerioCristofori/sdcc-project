@@ -5,19 +5,24 @@ services:
     build: ./master
 
 
-  client-1:
+  production-site-1:
     container_name: production-site-1
-    build: production-site
+    build: ./production-site
     depends_on:
       - master
-    tty: true
-  client-2:
+  production-site-2:
     container_name: production-site-2
-    build: production-site
+    build: ./production-site
+    depends_on:
+      - master
+
+  client-cli:
+    container_name: client-cli
+    build: ./client-cli
     depends_on:
       - master
     tty: true
-
+    stdin_open: true
 
   edge-node-1:
     container_name: edge-node-1

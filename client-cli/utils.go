@@ -85,16 +85,17 @@ func RpcSingleEdgeNode(command string, key string, value string, timestamp time.
 	if strings.EqualFold(command,"get") {
 
 		// GET body
-		reply := &DataformatReply{}
+		reply := DataformatReply{}
 		reply.DataResult = &Data{}
 
 		call := client.Go("Dataformat.Get", args, reply, nil)
 		call = <-call.Done
 		if call.Error != nil {
-			log.Fatal("Error in Dataformat.Get: ", call.Error.Error())
+			log.Println("Error in Dataformat.Get: ", call.Error.Error())
+			return
 		}
 
-		//fmt.Printf("Dataformat.Get:\n Key:\t%s\nValue:\n%s\nTimestamp:\t%s\n", key, reply.Value, reply.Timestamp.String() )
+		fmt.Printf("Dataformat.Get:\n Key:\t%s\nValue:\n%s\nTimestamp:\t%s\n", key, reply.DataResult.Value, reply.DataResult.Timestamp.String() )
 
 	} else if strings.EqualFold(command,"put") {
 
@@ -105,10 +106,6 @@ func RpcSingleEdgeNode(command string, key string, value string, timestamp time.
 		call = <-call.Done
 		if call.Error != nil {
 			log.Fatal("Error in Dataformat.Put: ", call.Error.Error())
-		}
-		// check if i call the leader or not
-		if reply.Ack{
-			leaderEdgeAddr = edgeAddr
 		}
 
 		//fmt.Printf("Dataformat.Put:\n Key:\t%s\nValue:\n%s\nTimestamp:\t%s\n", key, reply.Value, reply.Timestamp.String() )
@@ -124,10 +121,6 @@ func RpcSingleEdgeNode(command string, key string, value string, timestamp time.
 		if call.Error != nil {
 			log.Fatal("Error in Dataformat.Delete: ", call.Error.Error())
 		}
-		// check if i call the leader or not
-		if reply.Ack{
-			leaderEdgeAddr = edgeAddr
-		}
 
 		//fmt.Printf("Dataformat.Delete:\n Key:\t%s\nTimestamp:\t%s\n", key, reply.Timestamp.String() )
 
@@ -142,10 +135,6 @@ func RpcSingleEdgeNode(command string, key string, value string, timestamp time.
 		call = <-call.Done
 		if call.Error != nil {
 			log.Fatal("Error in Dataformat.Append: ", call.Error.Error())
-		}
-		// check if i call the leader or not
-		if reply.Ack{
-			leaderEdgeAddr = edgeAddr
 		}
 
 		//fmt.Printf("Dataformat.Append:\n Key:\t%s\nValue:\n%s\nTimestamp:\t%s\n", key, reply.Value, reply.Timestamp.String() )

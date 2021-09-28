@@ -19,7 +19,7 @@ func consumptionSite()  {
 		var value 		= ""
 
 		scanner := bufio.NewScanner(os.Stdin)
-		fmt.Print(">")
+		fmt.Print(">>>")
 		scanner.Scan()
 		in := scanner.Text()
 		arguments := strings.Split(in, " ")
@@ -62,18 +62,14 @@ func consumptionSite()  {
 		}
 
 		//call RPC func
-		if len(leaderEdgeAddr) > 0 {
-			RpcSingleEdgeNode(command, key, value, timestamp, leaderEdgeAddr)
-		}else {
-			RpcBroadcastEdgeNode(command, key, value, timestamp )
-		}
+		RpcBroadcastEdgeNode(command, key, value, timestamp )
+
 
 
 	}
 }
 
 func main()  {
-	time.Sleep(10 * time.Second)
 	// Set right edge node address
 	GetEdgeAddresses()
 
