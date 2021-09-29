@@ -13,11 +13,8 @@ var(
 	port 		= 12345
 	masterPort 	= 8080
 	masterAddr 	= fmt.Sprintf( "master:%d", masterPort)
-	leaderEdgeAddr 		string
 	allNodesAddr		[]string
 )
-// random simulation rtt
-var rangeRTT int64 = 20
 
 type DataformatReply struct {
 	DataResult  *Data
@@ -33,10 +30,6 @@ type Args struct {
 type Data struct {
 	Value string
 	Timestamp time.Time
-}
-
-func SetEdgeAddressTest(){
-	leaderEdgeAddr = fmt.Sprintf("localhost:%d", port)
 }
 
 func GetEdgeAddresses()  {
@@ -85,17 +78,16 @@ func RpcSingleEdgeNode(command string, key string, value string, timestamp time.
 	if strings.EqualFold(command,"get") {
 
 		// GET body
-		reply := DataformatReply{}
-		reply.DataResult = &Data{}
+		dataResult := &Data{}
 
-		call := client.Go("Dataformat.Get", args, reply, nil)
+		call := client.Go("Dataformat.Get", args, dataResult, nil)
 		call = <-call.Done
 		if call.Error != nil {
 			log.Println("Error in Dataformat.Get: ", call.Error.Error())
 			return
 		}
 
-		fmt.Printf("Dataformat.Get:\n Key:\t%s\nValue:\n%s\nTimestamp:\t%s\n", key, reply.DataResult.Value, reply.DataResult.Timestamp.String() )
+		fmt.Printf("Get Key from %s :\n Key:\t%s\nValue:\n%s\nTimestamp:\t%s\n", edgeAddr, key, dataResult.Value, dataResult.Timestamp.String() )
 
 	} else if strings.EqualFold(command,"put") {
 
@@ -108,8 +100,11 @@ func RpcSingleEdgeNode(command string, key string, value string, timestamp time.
 			log.Fatal("Error in Dataformat.Put: ", call.Error.Error())
 		}
 
-		//fmt.Printf("Dataformat.Put:\n Key:\t%s\nValue:\n%s\nTimestamp:\t%s\n", key, reply.Value, reply.Timestamp.String() )
-
+		if reply.Ack {
+			fmt.Printf("Put key-value:\n Key:\t%s\nValue:\n%s\nTimestamp:\t%s\n", key, value, timestamp.String() )
+		} else {
+			fmt.Println("Key-Value not added")
+		}
 
 	} else if strings.EqualFold(command,"delete") {
 		// DELETE body
@@ -122,8 +117,11 @@ func RpcSingleEdgeNode(command string, key string, value string, timestamp time.
 			log.Fatal("Error in Dataformat.Delete: ", call.Error.Error())
 		}
 
-		//fmt.Printf("Dataformat.Delete:\n Key:\t%s\nTimestamp:\t%s\n", key, reply.Timestamp.String() )
-
+		if reply.Ack {
+			fmt.Printf("Delete key:\n Key:\t%s\nTimestamp:\t%s\n", key, timestamp.String() )
+		} else {
+			fmt.Println("Key not deleted")
+		}
 
 	} else if strings.EqualFold(command,"append") {
 
@@ -136,10 +134,11 @@ func RpcSingleEdgeNode(command string, key string, value string, timestamp time.
 		if call.Error != nil {
 			log.Fatal("Error in Dataformat.Append: ", call.Error.Error())
 		}
-
-		//fmt.Printf("Dataformat.Append:\n Key:\t%s\nValue:\n%s\nTimestamp:\t%s\n", key, reply.Value, reply.Timestamp.String() )
-
-
+		if reply.Ack {
+			fmt.Printf("Append value:\n Key:\t%s\nValue:\n%s\nTimestamp:\t%s\n", key, value, timestamp.String() )
+		} else {
+			fmt.Println("Value not added")
+		}
 
 	}
 

@@ -9,6 +9,8 @@ import (
 	"time"
 )
 
+var ErrorCmd = "Not valid args\nInsert args in the form: <get/put/delete/append> <key> {<value>}"
+
 func consumptionSite()  {
 	// Provide user interface as also consumption site
 	// BOUNDARY
@@ -29,8 +31,8 @@ func consumptionSite()  {
 		}
 
 		if len(arguments) < 2 {
-			log.Fatal("Not valid args\nInsert args in the form: <get/put/delete/append> <key> {<value>}")
-			os.Exit(1)
+			log.Println(ErrorCmd)
+			continue
 		}
 		command = arguments[0]
 		key = arguments[1]
@@ -42,14 +44,14 @@ func consumptionSite()  {
 		// Controllo sintattico
 		switch command {
 		case "put": if len(arguments) < 3 {
-			log.Fatal("Not valid args\nInsert args in the form: <get/put/delete/append> <key> {<value>}")
-			os.Exit(1)
+			log.Println(ErrorCmd)
+			continue
 		}else{
 			break
 		}
 		case "append": if len(arguments) < 3 {
-			log.Fatal("Not valid args\nInsert args in the form: <get/put/delete/append> <key> {<value>}")
-			os.Exit(1)
+			log.Println(ErrorCmd)
+			continue
 		}else{
 			break
 		}
@@ -57,8 +59,8 @@ func consumptionSite()  {
 		case "get":
 			break
 		default:
-			log.Fatal("Not valid args\nInsert args in the form: <get/put/delete/append> <key> {<value>}")
-			os.Exit(1)
+			log.Println(ErrorCmd)
+			continue
 		}
 
 		//call RPC func
