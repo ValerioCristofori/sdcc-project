@@ -493,7 +493,6 @@ func (rf *Raft) broadcastAppendEntries() {
 	defer rf.mu.Unlock()
 
 	if rf.state == LEADER {
-		fmt.Println("Init broadcast entries")
 		firstIndex := 0
 		if len(rf.logs) > 0 {
 			firstIndex = rf.logs[0].Index
@@ -501,7 +500,6 @@ func (rf *Raft) broadcastAppendEntries() {
 
 		for i := range rf.peers {
 			if i == rf.me {
-				fmt.Printf("Uguale in ciclo: %d\n", i)
 				continue
 			}
 			if rf.nextIndex[i] > firstIndex {
@@ -517,8 +515,6 @@ func (rf *Raft) broadcastAppendEntries() {
 
 				go func(server int, args AppendEntriesArgs) {
 					reply := AppendEntriesReply{}
-					fmt.Println("Sending entries to: " + cluster.Nodes[i])
-					fmt.Printf("ciclo num: %d\n", i)
 					rf.sendAppendEntries(server, args, &reply)
 				}(i, args)
 			} else {
@@ -839,7 +835,7 @@ func (rf *Raft) run() {
 		rf.mu.Unlock()
 		switch currState {
 		case FOLLOWER:
-			fmt.Println("In State FOLLOWER")
+			//fmt.Println("In State FOLLOWER")
 			select {
 			case <-rf.heartBeatCh:
 			case <-rf.grantVoteCh:
@@ -851,7 +847,7 @@ func (rf *Raft) run() {
 				rf.mu.Unlock()
 			}
 		case CANDIDATE:
-			fmt.Println("In State CANDIDATE")
+			//fmt.Println("In State CANDIDATE")
 			rf.mu.Lock()
 			rf.currentTerm++
 			rf.votedFor = rf.me
@@ -879,7 +875,7 @@ func (rf *Raft) run() {
 			case <-time.After(time.Millisecond * time.Duration(rand.Intn(200)+300)):
 			}
 		case LEADER:
-			fmt.Println("In State LEADER")
+			//fmt.Println("In State LEADER")
 			go rf.broadcastAppendEntries()
 			time.Sleep(time.Millisecond * 100)
 		}

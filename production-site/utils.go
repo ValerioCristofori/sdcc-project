@@ -39,7 +39,7 @@ func SetEdgeAddressTest(){
 	leaderEdgeAddr = fmt.Sprintf("localhost:%d", port)
 }
 
-func GetEdgeAddresses()  {
+func GetEdgeAddresses() {
 	// RPC request to master:8080
 	// retrieve list all edge node addresses
 	// Try to connect to masterAddr using HTTP protocol

@@ -72,7 +72,6 @@ func productionSite()  {
 
 
 func main()  {
-
 	time.Sleep(10 * time.Second)
 	// Set right edge node address
 	GetEdgeAddresses()

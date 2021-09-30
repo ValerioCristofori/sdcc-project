@@ -69,7 +69,6 @@ func (t *Dataformat) Put(args Args, reply *DataformatReply) error {
 	}
 	reply.Ack = true
 	//if leader do immediately the op
-	PutEntry(&args)
 
 	return nil
 }
@@ -84,7 +83,6 @@ func (t *Dataformat) Delete(args Args, reply *DataformatReply) error {
 	}
 	reply.Ack = true
 	//if leader do immediately the op
-	DeleteEntry(&args)
 	return nil
 }
 
@@ -98,6 +96,5 @@ func (t *Dataformat) Append(args Args, reply *DataformatReply) error {
 	}
 	reply.Ack = true
 	//if leader do immediately the op
-	AppendEntry(&args)
 	return nil
 }
