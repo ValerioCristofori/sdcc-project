@@ -10,20 +10,6 @@ import (
 	"os"
 )
 var table_name string
-func InitLambda()  {
-	/*
-	   	// Create Lambda service production-site
-	       sess := session.Must(session.NewSessionWithOptions(session.Options{
-	           SharedConfigState: session.SharedConfigEnable,
-	       }))
-
-	       production-site := lambda.New(sess, &aws.Config{Region: aws.String("us-west-2")})
-	*/
-}
-
-func PutLambda(args Args){
-
-}
 
 func initDynamoDB(tableName string){
 	// Initialize a session in us-east-1 that the SDK will use to load
