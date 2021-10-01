@@ -42,6 +42,13 @@ var mutex = sync.RWMutex{}
 
 func InitMap() error {
 	datastore = make(map[string]Data)
+	initDynamoDB("Sensors")
+	//qualcosa per verificare l'effettiva creazione della tabella
+
+	/*while (tabella non creata){
+		aspetta
+	}*/
+
 	return nil
 }
 
@@ -82,6 +89,7 @@ func (t *Dataformat) Delete(args Args, reply *DataformatReply) error {
 		return nil
 	}
 	reply.Ack = true
+	deleteItem(args)
 	//if leader do immediately the op
 	return nil
 }
