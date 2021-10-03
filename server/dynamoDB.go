@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/aws/awserr"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/dynamodb"
 	"github.com/aws/aws-sdk-go/service/dynamodb/dynamodbattribute"
@@ -157,4 +158,44 @@ func getItem (key string){
 	fmt.Println("Value: ", item.Value)
 	fmt.Println("Timestamp: ", item.Timestamp.String())
 
+}
+
+
+func callTable() int {
+	// Initialize a session in us-west-2 that the SDK will use to load
+	// credentials from the shared credentials file ~/.aws/credentials.
+	sess, _ := session.NewSession(&aws.Config{
+		Region: aws.String("us-west-2")},
+	)
+
+	// Create DynamoDB client
+	svc := dynamodb.New(sess)
+
+	// create the input configuration instance
+	input := &dynamodb.ListTablesInput{}
+
+	fmt.Printf("Tables:\n")
+
+	for {
+		// Get the list of tables
+		result, err := svc.ListTables(input)
+		if err != nil {
+			if aerr, ok := err.(awserr.Error); ok {
+				switch aerr.Code() {
+				case dynamodb.ErrCodeInternalServerError:
+					fmt.Println(dynamodb.ErrCodeInternalServerError, aerr.Error())
+				default:
+					fmt.Println(aerr.Error())
+				}
+			} else {
+				// Print the error, cast err to awserr.Error to get the Code and
+				// Message from an error.
+				fmt.Println(err.Error())
+			}
+			return 0
+		}
+
+		return len(result.TableNames)
+
+	}
 }
