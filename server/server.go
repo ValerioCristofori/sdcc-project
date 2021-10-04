@@ -12,6 +12,7 @@ import (
 )
 // server conf
 var(
+
 	dataPath	= "/data"
 	dataDebugPath = "/debug-data"
 	path  		= "/"

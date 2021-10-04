@@ -165,7 +165,7 @@ func callTable() int {
 	// Initialize a session in us-west-2 that the SDK will use to load
 	// credentials from the shared credentials file ~/.aws/credentials.
 	sess, _ := session.NewSession(&aws.Config{
-		Region: aws.String("us-west-2")},
+		Region: aws.String("us-east-1")},
 	)
 
 	// Create DynamoDB client
