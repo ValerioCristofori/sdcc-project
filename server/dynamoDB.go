@@ -9,6 +9,7 @@ import (
 	"github.com/aws/aws-sdk-go/service/dynamodb/dynamodbattribute"
 	"log"
 	"os"
+	"strings"
 )
 var table_name string
 
@@ -61,9 +62,6 @@ func putItem(args Args){
 
 	// Create DynamoDB client
 	svc := dynamodb.New(sess)
-
-
-
 	av, err := dynamodbattribute.MarshalMap(args)
 
 	if err != nil {
@@ -80,7 +78,9 @@ func putItem(args Args){
 
 	_, err = svc.PutItem(input)
 
-	if err != nil {
+	if strings.Contains(err.Error(), "ResourceInUseException"){
+		fmt.Println(err.Error())
+	}  else if err != nil {
 		fmt.Println("Got error calling PutItem:")
 		fmt.Println(err.Error())
 		//os.Exit(1)
