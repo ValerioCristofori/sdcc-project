@@ -42,16 +42,16 @@ var mutex = sync.RWMutex{}
 
 func InitMap() error {
 	datastore = make(map[string]Data)
-	initDynamoDB("Sensors")
-	//wait for table creation
-	for {
-		tables := callTable()
-		if tables == 0{
-			print("Wait")
-		}else {
-			return nil
-		}
-	}
+	//initDynamoDB("Sensors")
+	////wait for table creation
+	//for {
+	//	tables := callTable()
+	//	if tables == 0{
+	//		print("Wait")
+	//	}else {
+	//		return nil
+	//	}
+	//}
 
 
 

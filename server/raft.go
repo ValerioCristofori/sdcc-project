@@ -25,6 +25,7 @@ import (
 	"log"
 	"math/rand"
 	"net/rpc"
+	"strings"
 	"sync"
 	"time"
 )
@@ -641,6 +642,11 @@ func (rf *Raft) isUptoDate(candIndex int, candTerm int) bool {
 	return candIndex >= index
 }
 
+
+func remove(slice []*rpc.Client, s int) []*rpc.Client {
+	return append(slice[:s], slice[s+1:]...)
+}
+
 //
 // example code to send a RequestVote RPC to a server.
 // server is the index of the target server in rf.peers[].
@@ -675,6 +681,14 @@ func (rf *Raft) sendRequestVote(server int, args *RequestVoteArgs, reply *Reques
 	err := rf.peers[server].Call("RaftRPC.RequestVote", args, reply)
 	if err != nil {
 		log.Println("Error in RaftRPC.RequestVote: ", err)
+		if strings.Contains( err.Error(), "connection"){
+			// the end point is down
+			// remove end point to te peer list
+			rf.peers = remove( rf.peers, server)
+			if rf.me > server {
+				rf.me--
+			}
+		}
 		ok = false
 	}
 	rf.mu.Lock()
@@ -684,7 +698,6 @@ func (rf *Raft) sendRequestVote(server int, args *RequestVoteArgs, reply *Reques
 		if rf.state != CANDIDATE {
 			return ok
 		}
-
 		term := rf.currentTerm
 		if args.Term != term {
 			return ok
@@ -835,7 +848,7 @@ func (rf *Raft) run() {
 		rf.mu.Unlock()
 		switch currState {
 		case FOLLOWER:
-			//fmt.Println("In State FOLLOWER")
+			fmt.Println("In State FOLLOWER")
 			select {
 			case <-rf.heartBeatCh:
 			case <-rf.grantVoteCh:
@@ -847,7 +860,7 @@ func (rf *Raft) run() {
 				rf.mu.Unlock()
 			}
 		case CANDIDATE:
-			//fmt.Println("In State CANDIDATE")
+			fmt.Println("In State CANDIDATE")
 			rf.mu.Lock()
 			rf.currentTerm++
 			rf.votedFor = rf.me
@@ -875,7 +888,7 @@ func (rf *Raft) run() {
 			case <-time.After(time.Millisecond * time.Duration(rand.Intn(200)+300)):
 			}
 		case LEADER:
-			//fmt.Println("In State LEADER")
+			fmt.Println("In State LEADER")
 			go rf.broadcastAppendEntries()
 			time.Sleep(time.Millisecond * 100)
 		}

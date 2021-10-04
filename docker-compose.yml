@@ -39,3 +39,8 @@ services:
     build: ./server
     depends_on:
       - master
+  edge-node-4:
+    container_name: edge-node-4
+    build: ./server
+    depends_on:
+      - master

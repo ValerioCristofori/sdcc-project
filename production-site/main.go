@@ -5,6 +5,7 @@ import (
 	"log"
 	"math/rand"
 	"os"
+	"syscall"
 	"time"
 )
 
@@ -24,12 +25,12 @@ func (s *Sensor) getMeasure() error {
 	// Put the first measure
 	measure := rand.Float64()*rangeFloats
 	fmt.Printf("Measuring %f\n",measure)
-	timestamp := time.Now()
-	if len(leaderEdgeAddr) > 0 {
-		RpcSingleEdgeNode("put", s.Id, fmt.Sprintf("%f", measure), timestamp, leaderEdgeAddr )
-	}else {
-		RpcBroadcastEdgeNode("put", s.Id, fmt.Sprintf("%f", measure), timestamp)
-	}
+	//timestamp := time.Now()
+	//if len(leaderEdgeAddr) > 0 {
+	//	RpcSingleEdgeNode("put", s.Id, fmt.Sprintf("%f", measure), timestamp, leaderEdgeAddr )
+	//}else {
+	//	RpcBroadcastEdgeNode("put", s.Id, fmt.Sprintf("%f", measure), timestamp)
+	//}
 
 
 	// Append every 5 seconds
@@ -66,7 +67,7 @@ func productionSite()  {
 			}
 		}(&sensors[sensorIndex])
 	}
-	fmt.Println("Done!")
+	syscall.Pause()
 }
 
 
@@ -76,8 +77,6 @@ func main()  {
 	// Set right edge node address
 	GetEdgeAddresses()
 
-	go productionSite()
-	time.Sleep(20 * time.Second)
+	productionSite()
 
-	//syscall.Pause()
 }

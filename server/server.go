@@ -230,6 +230,15 @@ func main()  {
 	}
 	addHandlerData(serverRPC, new(Dataformat))
 
+	time.Sleep(8 * time.Second)
+	//if rfRPC.rf.state == LEADER {
+	//	log.Println("EXITING FROM LEADER")
+	//	os.Exit(1)
+	//}
+	//if cluster.indexEdgeRequest == 1 {
+	//		log.Println("EXITING")
+	//		os.Exit(1)
+	//}
 	syscall.Pause()
 
 }
