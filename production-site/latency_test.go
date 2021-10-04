@@ -78,12 +78,12 @@ func test1()  {
 	rand.Seed(time.Now().UnixNano())
 	var (
 		numGet 		= TotQuery*85/100
-		//numPut 		= TotQuery*15/100
+		numPut 		= TotQuery*15/100
 		wg			= new(sync.WaitGroup)
 	)
-	wg.Add(1)
+	wg.Add(2)
 	go getCalls(wg, numGet)
-	//go putCalls(wg, numPut)
+	go putCalls(wg, numPut)
 
 	wg.Wait()
 
