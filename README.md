@@ -27,3 +27,6 @@ go test -run TestClient
 - [ ] Testing di: 85 Get, 15 Put; 40 Put, 20 Append, 40 Get
 - [ ] Usare Docker-swarm invece di docker-compose
 - [ ] Implementare semantica errori di tipo at-least-once
+
+
+![img.png](img.png)
