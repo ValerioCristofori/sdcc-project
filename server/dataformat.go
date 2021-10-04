@@ -59,12 +59,12 @@ func InitMap() error {
 func (t *Dataformat) Get(args Args, dataResult *Data) error {
 	// Get from the datastore
 	mutex.Lock()
+	defer mutex.Unlock()
 	if d, found := datastore[args.Key]; found {
 		*dataResult = d
 	} else {
 		return errors.New(fmt.Sprintf("key %s not in datastore",args.Key) )
 	}
-	mutex.Unlock()
 	return nil
 }
 

@@ -24,8 +24,7 @@ go test -run TestClient
 - [ ] Stabilire giusta sequenza di startup dei container
 - [ ] Gestire errori di DynamoDB ( creazione tabella ecc. )
 - [ ] Chiamare funzioni PUT GET APPEND DELETE da edge per dynamoDB ( Quando? Inserire un TTL invece del Timestamp in *Data)
-- [ ] Testing di: 85 Get, 15 Put; 40 Put, 20 Append, 40 Get
-- [ ] Usare Docker-swarm invece di docker-compose
+- [x] Testing di: 85 Get, 15 Put; 40 Put, 20 Append, 40 Get
 - [ ] Implementare semantica errori di tipo at-least-once
 
 

@@ -32,7 +32,6 @@ func appendOnLogFile( entry string )  {
 func getCalls(wg *sync.WaitGroup, numGet int)  {
 	defer wg.Done()
 	for i:=0; i<numGet; i++{
-		fmt.Printf("get %d\n",i)
 		// build random key
 		var key 	= rand.Intn(rangeKeys)
 		// send rpc get to a random address
@@ -44,7 +43,6 @@ func getCalls(wg *sync.WaitGroup, numGet int)  {
 func putCalls(wg *sync.WaitGroup, numPut int)  {
 	defer wg.Done()
 	for i:=0; i<numPut; i++{
-		fmt.Printf("put %d\n",i)
 		// build random key-value
 		var key 	= rand.Intn(rangeKeys)
 		var value 	= rand.Float64()*rangeFloats

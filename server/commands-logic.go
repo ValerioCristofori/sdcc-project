@@ -33,6 +33,8 @@ func PutEntry(args *Args)  {
 
 func DeleteEntry(args *Args)  {
 	// Delete in the Datastore
+	mutex.Lock()
+	defer mutex.Unlock()
 	if _, found := datastore[args.Key]; found {
 		mutex.Lock()
 		delete(datastore, args.Key)
@@ -49,12 +51,12 @@ func AppendEntry(args *Args)  {
 	// Build data struct
 	data := Data{args.Value}
 	// Save in the Datastore
+	mutex.Lock()
+	defer mutex.Unlock()
 	if d, found := datastore[args.Key]; found {
 		d.Value = d.Value + "\n" + args.Value // dummy append
 		// update in memory
-		mutex.Lock()
 		datastore[args.Key] = d
-		mutex.Unlock()
 		// update the result
 		data = d
 	} else {
