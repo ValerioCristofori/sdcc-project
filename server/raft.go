@@ -848,7 +848,7 @@ func (rf *Raft) run() {
 		rf.mu.Unlock()
 		switch currState {
 		case FOLLOWER:
-			fmt.Println("In State FOLLOWER")
+			//fmt.Println("In State FOLLOWER")
 			select {
 			case <-rf.heartBeatCh:
 			case <-rf.grantVoteCh:
@@ -860,7 +860,7 @@ func (rf *Raft) run() {
 				rf.mu.Unlock()
 			}
 		case CANDIDATE:
-			fmt.Println("In State CANDIDATE")
+			//fmt.Println("In State CANDIDATE")
 			rf.mu.Lock()
 			rf.currentTerm++
 			rf.votedFor = rf.me
@@ -888,7 +888,7 @@ func (rf *Raft) run() {
 			case <-time.After(time.Millisecond * time.Duration(rand.Intn(200)+300)):
 			}
 		case LEADER:
-			fmt.Println("In State LEADER")
+			//fmt.Println("In State LEADER")
 			go rf.broadcastAppendEntries()
 			time.Sleep(time.Millisecond * 100)
 		}

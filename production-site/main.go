@@ -9,14 +9,6 @@ import (
 	"time"
 )
 
-type Sensor struct {
-	Id string
-}
-
-var NSensors = 3
-var rangeFloats = 100.00
-var sensors []Sensor
-
 
 
 func (s *Sensor) getMeasure() error {
@@ -36,13 +28,12 @@ func (s *Sensor) getMeasure() error {
 	// Append every 5 seconds
 	for range time.Tick(5 * time.Second){
 		measure := rand.Float64()*rangeFloats
-		timestamp := time.Now()
 		if len(leaderEdgeAddr) > 0 {
 			fmt.Println("RPC Leader address" + leaderEdgeAddr)
-			RpcSingleEdgeNode("append", s.Id, fmt.Sprintf("%f", measure), timestamp, leaderEdgeAddr )
+			RpcSingleEdgeNode("append", s.Id, fmt.Sprintf("%f", measure), leaderEdgeAddr )
 		}else {
 			fmt.Println("RPC broadcast")
-			RpcBroadcastEdgeNode("append", s.Id, fmt.Sprintf("%f", measure), timestamp)
+			RpcBroadcastEdgeNode("append", s.Id, fmt.Sprintf("%f", measure) )
 		}
 	}
 

@@ -156,7 +156,6 @@ func getItem (key string){
 	fmt.Println("Found item:")
 	fmt.Println("Key:  ", item.Key)
 	fmt.Println("Value: ", item.Value)
-	fmt.Println("Timestamp: ", item.Timestamp.String())
 
 }
 

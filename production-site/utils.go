@@ -26,17 +26,21 @@ type DataformatReply struct {
 type Args struct {
 	Key string
 	Value string
-	Timestamp time.Time
 }
 
 type Data struct {
 	Value string
-	Timestamp time.Time
 }
 
-func SetEdgeAddressTest(){
-	leaderEdgeAddr = fmt.Sprintf("localhost:%d", port)
+
+type Sensor struct {
+	Id string
 }
+
+var NSensors = 3
+var rangeFloats = 100.00
+var sensors []Sensor
+
 
 func GetEdgeAddresses() {
 	// RPC request to master:8080
@@ -59,10 +63,10 @@ func GetEdgeAddresses() {
 	}
 }
 
-func RpcBroadcastEdgeNode(command string, key string, value string, timestamp time.Time)  {
+func RpcBroadcastEdgeNode(command string, key string, value string)  {
 restart:
 	for i:=0; i<len(allNodesAddr); i++ {
-		if !RpcSingleEdgeNode(command, key, value, timestamp, allNodesAddr[i]) {
+		if !RpcSingleEdgeNode(command, key, value, allNodesAddr[i]) {
 			errorLeader = true
 			break
 		}
@@ -77,7 +81,7 @@ restart:
 	}
 }
 
-func RpcSingleEdgeNode(command string, key string, value string, timestamp time.Time, edgeAddr string ) bool {
+func RpcSingleEdgeNode(command string, key string, value string, edgeAddr string ) bool {
 
 	var client *rpc.Client
 
@@ -101,19 +105,18 @@ func RpcSingleEdgeNode(command string, key string, value string, timestamp time.
 	}
 
 	// Init data input for RPC
-	args := &Args{Key: key, Value: value, Timestamp: timestamp}
+	args := &Args{Key: key, Value: value}
 
-	// Asynchronous call RPC
 	if strings.EqualFold(command,"get") {
 
 		// GET body
-		reply := &DataformatReply{}
-		reply.DataResult = &Data{}
+		dataResult := &Data{}
 
-		call := client.Go("Dataformat.Get", args, reply, nil)
+		call := client.Go("Dataformat.Get", args, dataResult, nil)
 		call = <-call.Done
 		if call.Error != nil {
 			log.Println("Error in Dataformat.Get: ", call.Error.Error())
+			return true
 		}
 
 	} else if strings.EqualFold(command,"put") {

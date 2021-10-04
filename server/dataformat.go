@@ -4,7 +4,6 @@ import (
 	"errors"
 	"fmt"
 	"sync"
-	"time"
 )
 
 // operations
@@ -18,7 +17,6 @@ const (
 type Args struct {
 	Key string
 	Value string
-	Timestamp time.Time
 }
 
 type DataformatReply struct {
@@ -28,7 +26,6 @@ type DataformatReply struct {
 
 type Data struct {
 	Value string
-	Timestamp time.Time
 }
 
 
@@ -74,7 +71,7 @@ func (t *Dataformat) Get(args Args, dataResult *Data) error {
 
 func (t *Dataformat) Put(args Args, reply *DataformatReply) error {
 	op := PUT
-	_,_,isLeader := rfRPC.rf.Start(Command{Op: op,Key: args.Key,Value: args.Value,Timestamp: args.Timestamp})
+	_,_,isLeader := rfRPC.rf.Start(Command{Op: op,Key: args.Key,Value: args.Value})
 	if !isLeader {
 		// the op called in a not leader edge node
 		reply.Ack = false
@@ -91,7 +88,7 @@ func (t *Dataformat) Put(args Args, reply *DataformatReply) error {
 
 func (t *Dataformat) Delete(args Args, reply *DataformatReply) error {
 	op := DELETE
-	_,_,isLeader := rfRPC.rf.Start(Command{Op: op,Key: args.Key,Timestamp: args.Timestamp})
+	_,_,isLeader := rfRPC.rf.Start(Command{Op: op,Key: args.Key})
 	if !isLeader {
 		// the op called in a not leader edge node
 		reply.Ack = false
@@ -105,7 +102,7 @@ func (t *Dataformat) Delete(args Args, reply *DataformatReply) error {
 
 func (t *Dataformat) Append(args Args, reply *DataformatReply) error {
 	op := APPEND
-	_,_,isLeader := rfRPC.rf.Start(Command{Op: op,Key: args.Key,Value: args.Value,Timestamp: args.Timestamp})
+	_,_,isLeader := rfRPC.rf.Start(Command{Op: op,Key: args.Key,Value: args.Value})
 	if !isLeader {
 		// the op called in a not leader edge node
 		reply.Ack = false

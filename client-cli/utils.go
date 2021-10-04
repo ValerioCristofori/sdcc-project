@@ -24,12 +24,10 @@ type DataformatReply struct {
 type Args struct {
 	Key string
 	Value string
-	Timestamp time.Time
 }
 
 type Data struct {
 	Value string
-	Timestamp time.Time
 }
 
 func GetEdgeAddresses()  {
@@ -72,7 +70,7 @@ func RpcSingleEdgeNode(command string, key string, value string, timestamp time.
 	}
 
 	// Init data input for RPC
-	args := &Args{Key: key, Value: value, Timestamp: timestamp}
+	args := &Args{Key: key, Value: value}
 
 	// Asynchronous call RPC
 	if strings.EqualFold(command,"get") {
@@ -87,7 +85,7 @@ func RpcSingleEdgeNode(command string, key string, value string, timestamp time.
 			return
 		}
 
-		fmt.Printf("Get Key from %s :\n Key:\t%s\nValue:\n%s\nTimestamp:\t%s\n", edgeAddr, key, dataResult.Value, dataResult.Timestamp.String() )
+		fmt.Printf("Get Key from %s :\n Key:\t%s\nValue:\n%s\nTimestamp:\t%s\n", edgeAddr, key, dataResult.Value )
 
 	} else if strings.EqualFold(command,"put") {
 

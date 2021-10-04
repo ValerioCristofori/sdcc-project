@@ -190,7 +190,6 @@ func applyChRoutine()  {
 			args := &Args{}
 			args.Key = m.Command.Key
 			args.Value = m.Command.Value
-			args.Timestamp = m.Command.Timestamp
 			switch m.Command.Op {
 			case PUT: PutEntry(args)
 			case APPEND: AppendEntry(args)
@@ -231,7 +230,7 @@ func main()  {
 	}
 	addHandlerData(serverRPC, new(Dataformat))
 
-	time.Sleep(8 * time.Second)
+	//time.Sleep(8 * time.Second)
 	//if rfRPC.rf.state == LEADER {
 	//	log.Println("EXITING FROM LEADER")
 	//	os.Exit(1)

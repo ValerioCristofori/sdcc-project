@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"time"
 )
 
 func appendOnLogFile( entry string )  {
@@ -23,7 +22,7 @@ func appendOnLogFile( entry string )  {
 
 func PutEntry(args *Args)  {
 	// Build data struct
-	data := Data{args.Value, time.Now()}
+	data := Data{args.Value}
 	// Save in the Datastore
 	mutex.Lock()
 	datastore[args.Key] = data
@@ -48,11 +47,10 @@ func DeleteEntry(args *Args)  {
 
 func AppendEntry(args *Args)  {
 	// Build data struct
-	data := Data{args.Value, time.Now()}
+	data := Data{args.Value}
 	// Save in the Datastore
 	if d, found := datastore[args.Key]; found {
 		d.Value = d.Value + "\n" + args.Value // dummy append
-		d.Timestamp = data.Timestamp
 		// update in memory
 		mutex.Lock()
 		datastore[args.Key] = d

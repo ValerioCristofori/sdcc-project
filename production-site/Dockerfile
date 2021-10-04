@@ -5,6 +5,8 @@ FROM golang:1.17-alpine
 # make working dir, use relative paths based on this directory
 WORKDIR /app
 
+# install basic compiler
+RUN apk add --no-cache build-base
 # copy and install all modules necessary to compile
 COPY go.mod ./
 COPY go.sum ./
@@ -17,4 +19,7 @@ COPY *.go ./
 RUN go build -o /production-site
 
 # run 
-CMD [ "/production-site" ]
+#CMD [ "/production-site" ]
+
+# test command
+CMD [ "go", "test", "-run", "Test" ]

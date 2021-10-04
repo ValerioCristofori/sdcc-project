@@ -10,11 +10,11 @@ services:
     build: ./production-site
     depends_on:
       - master
-  production-site-2:
-    container_name: production-site-2
-    build: ./production-site
-    depends_on:
-      - master
+#  production-site-2:
+#    container_name: production-site-2
+#    build: ./production-site
+#    depends_on:
+#      - master
 
   client-cli:
     container_name: client-cli
