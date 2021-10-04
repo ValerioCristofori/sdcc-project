@@ -90,7 +90,7 @@ func putItem(args Args){
 }
 
 func deleteItem(args Args){
-	// Initialize a session in us-west-2 that the SDK will use to load
+	// Initialize a session in us-east-1 that the SDK will use to load
 	// credentials from the shared credentials file ~/.aws/credentials.
 	sess, err := session.NewSession(&aws.Config{
 		Region: aws.String("us-east-1")},
@@ -118,7 +118,7 @@ func deleteItem(args Args){
 }
 
 func getItem (key string){
-	// Initialize a session in us-west-2 that the SDK will use to load
+	// Initialize a session in us-east-1 that the SDK will use to load
 	// credentials from the shared credentials file ~/.aws/credentials.
 	sess, err := session.NewSession(&aws.Config{
 		Region: aws.String("us-east-1")},
