@@ -83,6 +83,9 @@ func (t *Dataformat) Put(args Args, reply *DataformatReply) error {
 	reply.Ack = true
 	//if leader do immediately the op
 
+	//Communication with DynamoDB
+	//se è troppo grande invia a dynamodb
+
 	return nil
 }
 
