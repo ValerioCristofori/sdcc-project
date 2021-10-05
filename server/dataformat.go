@@ -3,6 +3,8 @@ package main
 import (
 	"errors"
 	"fmt"
+	"log"
+	"os"
 	"sync"
 )
 
@@ -13,6 +15,8 @@ const (
 	APPEND
 	DELETE
 )
+
+var DIMENSION int64 = 1000000//represent 8 bytes
 
 type Args struct {
 	Key string
@@ -55,9 +59,35 @@ func (t *Dataformat) Get(args Args, dataResult *Data) error {
 	return nil
 }
 
+func checkDimension(args Args) bool{
+	f, err := os.OpenFile("access.log", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	if err != nil {
+		log.Fatal(err)
+	}
+	fi, err := f.Stat()
+
+	if err!=nil{
+		log.Fatal(err)
+	}
+	fileDim := fi.Size()
+
+	if fileDim + int64(len(args.Key)) + int64(len(args.Value))>DIMENSION {
+		return false
+	}
+
+	return true
+}
 
 func (t *Dataformat) Put(args Args, reply *DataformatReply) error {
 	op := PUT
+
+	isFree:=checkDimension(args)
+
+	if !isFree{
+		putItem(args)
+		return nil
+	}
+
 	_,_,isLeader := rfRPC.rf.Start(Command{Op: op,Key: args.Key,Value: args.Value})
 	if !isLeader {
 		// the op called in a not leader edge node
@@ -69,6 +99,7 @@ func (t *Dataformat) Put(args Args, reply *DataformatReply) error {
 
 	//Communication with DynamoDB
 	//se è troppo grande invia a dynamodb
+
 
 	return nil
 }
