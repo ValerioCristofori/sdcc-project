@@ -80,6 +80,10 @@ func serveRequests()  {
 	}
 }
 
+func shutdownCluster()  {
+	
+}
+
 
 /*
  * Master node provide monitoring for edge node with heartbeats every 4 seconds

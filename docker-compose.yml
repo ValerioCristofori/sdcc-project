@@ -29,18 +29,41 @@ services:
     build: ./server
     depends_on:
       - master
+    volumes:
+      # Mount the shared configuration directory, used by the AWS SDKs
+      - $HOME/.aws/:/home/.aws/
+    environment:
+      # define the home folder; credentials will be read from $HOME/.aws
+      HOME: "/home"
+      # You can change which AWS CLI Profile is used
+      AWS_PROFILE: "default"
   edge-node-2:
     container_name: edge-node-2
     build: ./server
     depends_on:
       - master
+    volumes:
+      - $HOME/.aws/:/home/.aws/
+    environment:
+      HOME: "/home"
+      AWS_PROFILE: "default"
   edge-node-3:
     container_name: edge-node-3
     build: ./server
     depends_on:
       - master
+    volumes:
+      - $HOME/.aws/:/home/.aws/
+    environment:
+      HOME: "/home"
+      AWS_PROFILE: "default"
   edge-node-4:
     container_name: edge-node-4
     build: ./server
     depends_on:
       - master
+    volumes:
+      - $HOME/.aws/:/home/.aws/
+    environment:
+      HOME: "/home"
+      AWS_PROFILE: "default"

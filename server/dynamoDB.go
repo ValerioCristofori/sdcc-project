@@ -13,13 +13,18 @@ import (
 )
 var table_name string
 
-func initDynamoDB(tableName string){
+func initDynamoDB(tableName string) error{
 	// Initialize a session in us-east-1 that the SDK will use to load
 	// credentials from the shared credentials file ~/.aws/credentials.
 	table_name = tableName
 	sess, err := session.NewSession(&aws.Config{
 		Region: aws.String("us-east-1")},
 	)
+	if err != nil {
+		fmt.Println("Got error calling NewSession:")
+		fmt.Println(err.Error())
+		return err
+	}
 
 	// Create DynamoDB client
 	svc := dynamodb.New(sess)
@@ -51,8 +56,9 @@ func initDynamoDB(tableName string){
 
 		fmt.Println("Got error calling CreateTable:")
 		fmt.Println(err.Error())
-		os.Exit(1)
+		return err
 	}
+	return nil
 }
 
 func putItem(args Args){

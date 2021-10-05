@@ -154,6 +154,7 @@ func (rf *Raft) persist() {
 		log.Fatal("error in encoding: ", err)
 		return
 	}
+	// add map key-value to 
 	data := w.Bytes()
 	rf.persister.SaveRaftState(data)
 }

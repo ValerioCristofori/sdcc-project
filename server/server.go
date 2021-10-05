@@ -13,8 +13,6 @@ import (
 // server conf
 var(
 
-	dataPath	= "/data"
-	dataDebugPath = "/debug-data"
 	path  		= "/"
 	debugPath 	= "/debug"
 	port 		= 12345
@@ -39,7 +37,6 @@ func (c *Cluster) toString() string{
 
 // data conf
 var (
-	df 				*Dataformat
 	cluster 			= new(Cluster)
 	listEndPointsRPC 	= new([]*rpc.Client)
 )
@@ -228,6 +225,22 @@ func main()  {
 	if err != nil {
 		log.Fatal("Error in Init Map: ", err)
 	}
+	/*
+	err = initDynamoDB("Sensors")
+	if err != nil {
+		log.Fatal("Error in Init DynamoDB: ", err)
+
+	}
+	//wait for table creation
+	for {
+		tables := callTable()
+		if tables == 0{
+			print("Wait")
+		}else {
+			fmt.Println("Created dynamoDB table!")
+			break
+		}
+	}*/
 	addHandlerData(serverRPC, new(Dataformat))
 
 	//time.Sleep(8 * time.Second)
