@@ -61,10 +61,16 @@ func (t *Dataformat) Get(args Args, dataResult *Data) error {
 	defer mutex.Unlock()
 	if d, found := datastore[args.Key]; found {
 		*dataResult = d
+		return nil
+	}
+	item := getItem(args.Key)
+	if item.Value != "" {
+		d := Data{item.Value}
+		*dataResult = d
+		return nil
 	} else {
 		return errors.New(fmt.Sprintf("key %s not in datastore",args.Key) )
 	}
-	return nil
 }
 
 func checkDimension(args Args) bool{
@@ -105,10 +111,6 @@ func (t *Dataformat) Put(args Args, reply *DataformatReply) error {
 	reply.Ack = true
 	//if leader do immediately the op
 
-	//Communication with DynamoDB
-	//se è troppo grande invia a dynamodb
-
-
 	return nil
 }
 
@@ -134,6 +136,11 @@ func (t *Dataformat) Append(args Args, reply *DataformatReply) error {
 		reply.Ack = false
 		return nil
 	}
+
+	if getItem(args.Key).Value!="" {
+		appendItem(args)
+	}
+
 	reply.Ack = true
 	//if leader do immediately the op
 	return nil

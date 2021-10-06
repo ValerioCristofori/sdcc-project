@@ -52,7 +52,7 @@ func initDynamoDB(tableName string) error{
 
 	_, err = svc.CreateTable(input)
 
-	if err != nil {
+	if err != nil && !strings.Contains(err.Error(), "ResourceInUseException"){
 
 		fmt.Println("Got error calling CreateTable:")
 		fmt.Println(err.Error())
@@ -84,9 +84,7 @@ func putItem(args Args){
 
 	_, err = svc.PutItem(input)
 
-	if strings.Contains(err.Error(), "ResourceInUseException"){
-		fmt.Println(err.Error())
-	}  else if err != nil {
+	if err != nil {
 		fmt.Println("Got error calling PutItem:")
 		fmt.Println(err.Error())
 		//os.Exit(1)
@@ -123,7 +121,7 @@ func deleteItem(args Args){
 
 }
 
-func getItem (key string){
+func getItem (key string) Args{
 	// Initialize a session in us-east-1 that the SDK will use to load
 	// credentials from the shared credentials file ~/.aws/credentials.
 	sess, err := session.NewSession(&aws.Config{
@@ -156,13 +154,44 @@ func getItem (key string){
 
 	if item.Value == "" {
 		fmt.Println("Could not find ", key, " sensor")
-		return
 	}
 
 	fmt.Println("Found item:")
 	fmt.Println("Key:  ", item.Key)
 	fmt.Println("Value: ", item.Value)
+	return item
 
+}
+
+
+func appendItem(args Args) {
+	// Initialize a session in us-east-1 that the SDK will use to load
+	// credentials from the shared credentials file ~/.aws/credentials.
+	sess, err := session.NewSession(&aws.Config{
+		Region: aws.String("us-east-1")},
+	)
+
+	// Create DynamoDB client
+	svc := dynamodb.New(sess)
+
+	key, err := dynamodbattribute.MarshalMap(args)
+	if err != nil {
+		log.Fatalf("Got error marshalling item: %s", err)
+	}
+
+	input := &dynamodb.UpdateItemInput{
+
+		TableName:    aws.String(table_name),
+		Key:          key,
+		ReturnValues: aws.String("UPDATED_NEW"),
+	}
+
+	_, err = svc.UpdateItem(input)
+	if err != nil {
+		log.Fatalf("Got error calling UpdateItem: %s", err)
+	}
+
+	fmt.Println("Correctly updated " + args.Key + " sensor value")
 }
 
 

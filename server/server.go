@@ -258,22 +258,21 @@ func main()  {
 	rfRPC = Make( *listEndPointsRPC, cluster.indexEdgeRequest, persister, applyCh)
 	addHandlerRaft(serverRPC, rfRPC)
 
-	/*
+
 	err = initDynamoDB("Sensors")
 	if err != nil {
 		log.Fatal("Error in Init DynamoDB: ", err)
-
 	}
 	//wait for table creation
-	for {
-		tables := callTable()
-		if tables == 0{
-			print("Wait")
-		}else {
-			fmt.Println("Created dynamoDB table!")
-			break
-		}
-	}*/
+	//for {
+	//	tables := callTable()
+	//	if tables == 0{
+	//		print("Wait")
+	//	}else {
+	//		fmt.Println("Created dynamoDB table!")
+	//		break
+	//	}
+
 	addHandlerData(serverRPC, new(Dataformat))
 
 	//time.Sleep(8 * time.Second)

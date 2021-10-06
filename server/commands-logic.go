@@ -15,10 +15,6 @@ func appendOnLogFile( entry string )  {
 		log.Fatal(err)
 	}
 
-
-
-
-
 	if _, err := f.Write([]byte(entry)); err != nil {
 		log.Fatal(err)
 	}
