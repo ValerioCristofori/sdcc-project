@@ -27,11 +27,14 @@ services:
   edge-node-1:
     container_name: edge-node-1
     build: ./server
+    stop_signal: SIGINT
     depends_on:
       - master
     volumes:
       # Mount the shared configuration directory, used by the AWS SDKs
       - $HOME/.aws/:/home/.aws/
+      # Named volume
+      - backup1:/app/vol
     environment:
       # define the home folder; credentials will be read from $HOME/.aws
       HOME: "/home"
@@ -40,30 +43,44 @@ services:
   edge-node-2:
     container_name: edge-node-2
     build: ./server
+    stop_signal: SIGINT
     depends_on:
       - master
     volumes:
       - $HOME/.aws/:/home/.aws/
+      - backup2:/app/vol
     environment:
       HOME: "/home"
       AWS_PROFILE: "default"
   edge-node-3:
     container_name: edge-node-3
     build: ./server
+    stop_signal: SIGINT
     depends_on:
       - master
     volumes:
       - $HOME/.aws/:/home/.aws/
+      - backup3:/app/vol
     environment:
       HOME: "/home"
       AWS_PROFILE: "default"
   edge-node-4:
     container_name: edge-node-4
     build: ./server
+    stop_signal: SIGINT
     depends_on:
       - master
     volumes:
       - $HOME/.aws/:/home/.aws/
+      - backup4:/app/vol
     environment:
       HOME: "/home"
       AWS_PROFILE: "default"
+
+
+volumes:
+  backup1:
+  backup2:
+  backup3:
+  backup4:
+

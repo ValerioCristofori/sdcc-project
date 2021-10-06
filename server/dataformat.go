@@ -46,6 +46,14 @@ func InitMap() error {
 	return nil
 }
 
+func PrintMap()  {
+	// loop over elements of slice
+	fmt.Println("Printing Map Datastore")
+	for k, v := range datastore {
+		fmt.Println(k, "value is", v)
+	}
+}
+
 
 func (t *Dataformat) Get(args Args, dataResult *Data) error {
 	// Get from the datastore

@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"net/rpc"
 	"os"
+	"os/signal"
 	"syscall"
 	"time"
 )
@@ -201,10 +202,36 @@ func applyChRoutine()  {
 
 
 
+func shutdownHandler() {
+
+	sigs := make(chan os.Signal, 1)
+
+	signal.Notify(sigs, syscall.SIGINT, syscall.SIGTERM)
+	go func() {
+		sig := <-sigs
+		fmt.Println(sig)
+		fmt.Println("Saving persist log entries and Raft state...")
+		if err := Save("./vol/backup", datastore); err != nil {
+			log.Fatalln(err)
+		}
+		fmt.Println("Exiting...")
+		os.Exit(2)
+
+	}()
+
+	go func() {
+		for range time.Tick(5 * time.Second){
+			fmt.Println("Saving persist log entries and Raft state...")
+			if err := Save("./vol/backup", datastore); err != nil {
+				log.Fatalln(err)
+			}
+		}
+	}()
+}
+
 func main()  {
 
 	// start configuration and initialization of raft cluster
-
 	register()
 
 	time.Sleep(3 * time.Second)
@@ -214,17 +241,23 @@ func main()  {
 	go startListener(serverRPC)
 	time.Sleep(3 * time.Second)
 	connectToAllNodes()
-
-	persister := MakePersister()
-	// listen to messages from Raft indicating newly committed messages.
-	applyCh = make(chan ApplyMsg)
-	go applyChRoutine()
-	rfRPC = Make( *listEndPointsRPC, cluster.indexEdgeRequest, persister, applyCh)
-	addHandlerRaft(serverRPC, rfRPC)
 	err := InitMap()
 	if err != nil {
 		log.Fatal("Error in Init Map: ", err)
 	}
+
+	if err := Load("./vol/backup", &datastore); err != nil {
+		log.Println("Not able to backup persistent state")
+	}
+	//PrintMap()
+	shutdownHandler()
+	// listen to messages from Raft indicating newly committed messages.
+	applyCh = make(chan ApplyMsg)
+	go applyChRoutine()
+	persister := MakePersister()
+	rfRPC = Make( *listEndPointsRPC, cluster.indexEdgeRequest, persister, applyCh)
+	addHandlerRaft(serverRPC, rfRPC)
+
 	/*
 	err = initDynamoDB("Sensors")
 	if err != nil {
