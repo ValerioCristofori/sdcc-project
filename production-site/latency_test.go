@@ -105,7 +105,7 @@ func test2()  {
 }
 
 func Test(t *testing.T)  {
-	time.Sleep(10 * time.Second)
+	time.Sleep(20 * time.Second)
 	fmt.Println("STARTING TEST..")
 	// Set right edge node address
 	GetEdgeAddresses()

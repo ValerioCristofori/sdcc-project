@@ -30,6 +30,7 @@ func PutEntry(args *Args)  {
 	mutex.Lock()
 	datastore[args.Key] = data
 	mutex.Unlock()
+	fmt.Println("PUT ENTRY")
 	log.Println("PUT entry on datastore: {key: " + args.Key + "} {value: " + args.Value + "}" )
 	appendOnLogFile("PUT{key: " + args.Key + "}{value: " + args.Value + "}\n")
 }

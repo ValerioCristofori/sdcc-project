@@ -247,20 +247,18 @@ func main()  {
 	}
 	err = initDynamoDB("Sensors")
 	if err != nil {
-		syscall.Pause()
 		log.Fatal("Error in Init DynamoDB: ", err)
 	}
 	// wait for table creation
-	for {
-		tables := callTable()
-		if tables == 0 {
-			print("Wait")
-		} else {
-			fmt.Println("Created dynamoDB table!")
-			break
-		}
-	}
-
+	//for {
+	//	tables := callTable()
+	//	if tables == 0 {
+	//		print("Wait")
+	//	} else {
+	//		fmt.Println("Created dynamoDB table!")
+	//		break
+	//	}
+	//}
 
 	if err := Load("./vol/backup", &datastore); err != nil {
 		log.Println("Not able to backup persistent state")
@@ -270,10 +268,10 @@ func main()  {
 	// listen to messages from Raft indicating newly committed messages.
 	applyCh = make(chan ApplyMsg)
 	go applyChRoutine()
+
 	persister := MakePersister()
 	rfRPC = Make( *listEndPointsRPC, cluster.indexEdgeRequest, persister, applyCh)
 	addHandlerRaft(serverRPC, rfRPC)
-
 
 
 

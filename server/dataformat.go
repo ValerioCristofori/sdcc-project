@@ -16,7 +16,7 @@ const (
 	DELETE
 )
 
-var DIMENSION int64 = 1000000//represent 8 bytes
+var DIMENSION int64 = 1//represent 8 bytes
 
 type Args struct {
 	Key string
@@ -54,25 +54,6 @@ func PrintMap()  {
 	}
 }
 
-
-func (t *Dataformat) Get(args Args, dataResult *Data) error {
-	// Get from the datastore
-	mutex.Lock()
-	defer mutex.Unlock()
-	if d, found := datastore[args.Key]; found {
-		*dataResult = d
-		return nil
-	}
-	item := getItem(args.Key)
-	if item.Value != "" {
-		d := Data{item.Value}
-		*dataResult = d
-		return nil
-	} else {
-		return errors.New(fmt.Sprintf("key %s not in datastore",args.Key) )
-	}
-}
-
 func checkDimension(args Args) bool{
 	f, err := os.OpenFile("access.log", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 	if err != nil {
@@ -92,12 +73,33 @@ func checkDimension(args Args) bool{
 	return true
 }
 
+
+func (t *Dataformat) Get(args Args, dataResult *Data) error {
+	// Get from the datastore
+	mutex.Lock()
+	defer mutex.Unlock()
+	if d, found := datastore[args.Key]; found {
+		*dataResult = d
+		return nil
+	}
+	item := getItem(args.Key)
+	if item.Value != "" {
+		d := Data{item.Value}
+		*dataResult = d
+		return nil
+	} else {
+		return errors.New(fmt.Sprintf("key %s not in datastore and not in database",args.Key) )
+	}
+}
+
+
 func (t *Dataformat) Put(args Args, reply *DataformatReply) error {
 	op := PUT
 
 	isFree:=checkDimension(args)
 
 	if !isFree{
+		fmt.Println("PUT ON DYNAMODB")
 		putItem(args)
 		return nil
 	}

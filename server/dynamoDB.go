@@ -26,6 +26,8 @@ func initDynamoDB(tableName string) error{
 		return err
 	}
 
+
+
 	// Create DynamoDB client
 	svc := dynamodb.New(sess)
 
@@ -51,13 +53,13 @@ func initDynamoDB(tableName string) error{
 	}
 
 	_, err = svc.CreateTable(input)
-
 	if err != nil && !strings.Contains(err.Error(), "ResourceInUseException"){
 
 		fmt.Println("Got error calling CreateTable:")
 		fmt.Println(err.Error())
 		return err
 	}
+
 	return nil
 }
 
@@ -132,7 +134,7 @@ func getItem (key string) Args{
 	svc := dynamodb.New(sess)
 
 	result, err := svc.GetItem(&dynamodb.GetItemInput{
-		TableName: aws.String("Movies"),
+		TableName: aws.String(table_name),
 		Key: map[string]*dynamodb.AttributeValue{
 			"Key": {
 				S: aws.String(key),
@@ -140,8 +142,8 @@ func getItem (key string) Args{
 		},
 	})
 
-	if err != nil {
-		log.Fatalf("Got error calling GetItem: %s", err)
+	if err != nil{
+		log.Printf("Got error calling GetItem: %s \n", err)
 	}
 
 	item := Args{}
