@@ -245,6 +245,22 @@ func main()  {
 	if err != nil {
 		log.Fatal("Error in Init Map: ", err)
 	}
+	err = initDynamoDB("Sensors")
+	if err != nil {
+		syscall.Pause()
+		log.Fatal("Error in Init DynamoDB: ", err)
+	}
+	// wait for table creation
+	for {
+		tables := callTable()
+		if tables == 0 {
+			print("Wait")
+		} else {
+			fmt.Println("Created dynamoDB table!")
+			break
+		}
+	}
+
 
 	if err := Load("./vol/backup", &datastore); err != nil {
 		log.Println("Not able to backup persistent state")
@@ -259,19 +275,7 @@ func main()  {
 	addHandlerRaft(serverRPC, rfRPC)
 
 
-	err = initDynamoDB("Sensors")
-	if err != nil {
-		log.Fatal("Error in Init DynamoDB: ", err)
-	}
-	//wait for table creation
-	//for {
-	//	tables := callTable()
-	//	if tables == 0{
-	//		print("Wait")
-	//	}else {
-	//		fmt.Println("Created dynamoDB table!")
-	//		break
-	//	}
+
 
 	addHandlerData(serverRPC, new(Dataformat))
 

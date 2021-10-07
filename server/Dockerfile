@@ -8,7 +8,6 @@ WORKDIR /app
 # copy and install all modules necessary to compile
 COPY go.mod ./
 COPY go.sum ./
-#COPY $HOME/.aws/credentials ./
 RUN go mod download
 
 # copy other files

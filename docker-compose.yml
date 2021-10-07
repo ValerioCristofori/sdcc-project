@@ -5,11 +5,11 @@ services:
     build: ./master
 
 
-  production-site-1:
-    container_name: production-site-1
-    build: ./production-site
-    depends_on:
-      - master
+#  production-site-1:
+#    container_name: production-site-1
+#    build: ./production-site
+#    depends_on:
+#      - master
 #  production-site-2:
 #    container_name: production-site-2
 #    build: ./production-site
@@ -31,6 +31,8 @@ services:
     depends_on:
       - master
     volumes:
+      # Mount /var/run so we can access docker.sock and talk to Docker
+      - /var/run:/var/run
       # Mount the shared configuration directory, used by the AWS SDKs
       - $HOME/.aws/:/home/.aws/
       # Named volume
@@ -40,6 +42,7 @@ services:
       HOME: "/home"
       # You can change which AWS CLI Profile is used
       AWS_PROFILE: "default"
+      AWS_DEFAULT_REGION: "us-east-1"
   edge-node-2:
     container_name: edge-node-2
     build: ./server
@@ -47,11 +50,14 @@ services:
     depends_on:
       - master
     volumes:
+      # Mount /var/run so we can access docker.sock and talk to Docker
+      - /var/run:/var/run
       - $HOME/.aws/:/home/.aws/
       - backup2:/app/vol
     environment:
       HOME: "/home"
       AWS_PROFILE: "default"
+      AWS_DEFAULT_REGION: "us-east-1"
   edge-node-3:
     container_name: edge-node-3
     build: ./server
@@ -59,11 +65,14 @@ services:
     depends_on:
       - master
     volumes:
+      # Mount /var/run so we can access docker.sock and talk to Docker
+      - /var/run:/var/run
       - $HOME/.aws/:/home/.aws/
       - backup3:/app/vol
     environment:
       HOME: "/home"
       AWS_PROFILE: "default"
+      AWS_DEFAULT_REGION: "us-east-1"
   edge-node-4:
     container_name: edge-node-4
     build: ./server
@@ -71,11 +80,14 @@ services:
     depends_on:
       - master
     volumes:
+      # Mount /var/run so we can access docker.sock and talk to Docker
+      - /var/run:/var/run
       - $HOME/.aws/:/home/.aws/
       - backup4:/app/vol
     environment:
       HOME: "/home"
       AWS_PROFILE: "default"
+      AWS_DEFAULT_REGION: "us-east-1"
 
 
 volumes:
