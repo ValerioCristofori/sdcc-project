@@ -92,6 +92,7 @@ func RpcSingleEdgeNode(command string, key string, value string, timestamp time.
 		// PUT body
 		reply := &DataformatReply{}
 
+		
 		call := client.Go("Dataformat.Put", args, reply, nil)
 		call = <-call.Done
 		if call.Error != nil {
