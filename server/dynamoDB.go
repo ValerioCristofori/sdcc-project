@@ -169,29 +169,17 @@ func getItem (key string) Args{
 func appendItem(args Args) {
 	// Initialize a session in us-east-1 that the SDK will use to load
 	// credentials from the shared credentials file ~/.aws/credentials.
-	sess, err := session.NewSession(&aws.Config{
-		Region: aws.String("us-east-1")},
-	)
 
-	// Create DynamoDB client
-	svc := dynamodb.New(sess)
+	item := getItem(args.Key)
 
-	key, err := dynamodbattribute.MarshalMap(args)
-	if err != nil {
-		log.Fatalf("Got error marshalling item: %s", err)
+	if item.Value == "" {
+		fmt.Println(args.Key + " sensor isn't in dynamoDB table")
+		putItem(args)
+		return
 	}
 
-	input := &dynamodb.UpdateItemInput{
-
-		TableName:    aws.String(table_name),
-		Key:          key,
-		ReturnValues: aws.String("UPDATED_NEW"),
-	}
-
-	_, err = svc.UpdateItem(input)
-	if err != nil {
-		log.Fatalf("Got error calling UpdateItem: %s", err)
-	}
+	item.Value = item.Value + "\t" + args.Value
+	putItem(item)
 
 	fmt.Println("Correctly updated " + args.Key + " sensor value")
 }

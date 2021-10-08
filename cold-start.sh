@@ -10,4 +10,5 @@ sudo docker volume rm sdcc-project_backup4
 sudo docker-compose build
 sudo docker-compose up
 sudo docker-compose down
+sudo
 

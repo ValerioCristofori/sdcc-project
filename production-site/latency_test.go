@@ -46,11 +46,12 @@ func putCalls(wg *sync.WaitGroup, numPut int)  {
 		// build random key-value
 		var key 	= rand.Intn(rangeKeys)
 		var value 	= rand.Float64()*rangeFloats
+		time := time.Now()
 		// send rpc put
 		if len(leaderEdgeAddr) > 0 {
-			RpcSingleEdgeNode("put", fmt.Sprintf("%d", key), fmt.Sprintf("%f", value), leaderEdgeAddr )
+			RpcSingleEdgeNode("put", fmt.Sprintf("%d", key), fmt.Sprintf("%s:  %f", time.String(), value), leaderEdgeAddr )
 		}else {
-			RpcBroadcastEdgeNode("put", fmt.Sprintf("%d", key), fmt.Sprintf("%f", value) )
+			RpcBroadcastEdgeNode("put", fmt.Sprintf("%d", key), fmt.Sprintf("%s:  %f", time.String(), value) )
 		}
 	}
 }
@@ -61,11 +62,13 @@ func appendCalls(wg *sync.WaitGroup, numAppend int) {
 		// build random key-value
 		var key 	= rand.Intn(rangeKeys)
 		var value 	= rand.Float64()*rangeFloats
+		time := time.Now()
+
 		// send rpc put
 		if len(leaderEdgeAddr) > 0 {
-			RpcSingleEdgeNode("append", fmt.Sprintf("%d", key), fmt.Sprintf("%f", value), leaderEdgeAddr )
+			RpcSingleEdgeNode("append", fmt.Sprintf("%d", key), fmt.Sprintf("%s:  %f", time.String(), value), leaderEdgeAddr )
 		}else {
-			RpcBroadcastEdgeNode("append", fmt.Sprintf("%d", key), fmt.Sprintf("%f", value) )
+			RpcBroadcastEdgeNode("append", fmt.Sprintf("%d", key), fmt.Sprintf("%s:  %f", time.String(), value) )
 		}
 	}
 
