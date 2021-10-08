@@ -107,6 +107,8 @@ func getItem (key string) Args{
 
 	if item.Value == "" {
 		fmt.Println("Could not find ", key, " sensor")
+	} else {
+		item.Counter++
 	}
 
 	fmt.Println("Found item:")
@@ -129,7 +131,7 @@ func appendItem(args Args) {
 		return
 	}
 
-	item.Value = item.Value + "\t" + args.Value
+	item.Value = item.Value + "\n" + args.Value
 	putItem(item)
 
 	fmt.Println("Correctly updated " + args.Key + " sensor value")

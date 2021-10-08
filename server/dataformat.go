@@ -16,11 +16,12 @@ const (
 	DELETE
 )
 
-var DIMENSION int64 = 1//represent 8 bytes
+var DIMENSION int64 = 100000//represent 8 bytes
 
 type Args struct {
 	Key string
 	Value string
+	Counter int
 }
 
 type DataformatReply struct {
@@ -30,6 +31,7 @@ type DataformatReply struct {
 
 type Data struct {
 	Value string
+	Counter int
 }
 
 
@@ -54,7 +56,7 @@ func PrintMap()  {
 	}
 }
 
-func checkDimension(args Args) bool{
+func checkDimension(args Args){
 	f, err := os.OpenFile("access.log", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 	if err != nil {
 		log.Fatal(err)
@@ -67,10 +69,22 @@ func checkDimension(args Args) bool{
 	fileDim := fi.Size()
 
 	if fileDim + int64(len(args.Key)) + int64(len(args.Value))>DIMENSION {
-		return false
+		putSomeItemsOnDynamoDB()
 	}
 
-	return true
+
+
+}
+
+func putSomeItemsOnDynamoDB() {
+
+	for int64(len(datastore)) >= DIMENSION*2/3{
+
+		//invia a dynamodb i valori con timestamp maggiore liberando spazio sull'edge node
+
+	}
+
+
 }
 
 
@@ -80,11 +94,12 @@ func (t *Dataformat) Get(args Args, dataResult *Data) error {
 	defer mutex.Unlock()
 	if d, found := datastore[args.Key]; found {
 		*dataResult = d
+		d.Counter = d.Counter + 1
 		return nil
 	}
 	item := getItem(args.Key)
 	if item.Value != "" {
-		d := Data{item.Value}
+		d := Data{item.Value, item.Counter+1}
 		*dataResult = d
 		return nil
 	} else {
@@ -96,13 +111,15 @@ func (t *Dataformat) Get(args Args, dataResult *Data) error {
 func (t *Dataformat) Put(args Args, reply *DataformatReply) error {
 	op := PUT
 
-	isFree:=checkDimension(args)
+	/*isFree:=checkDimension(args)
 
 	if !isFree{
 		fmt.Println("PUT ON DYNAMODB")
 		putItem(args)
 		return nil
-	}
+	}*/
+
+	checkDimension(args)
 
 	_,_,isLeader := rfRPC.rf.Start(Command{Op: op,Key: args.Key,Value: args.Value})
 	if !isLeader {

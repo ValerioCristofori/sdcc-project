@@ -25,7 +25,7 @@ func appendOnLogFile( entry string )  {
 
 func PutEntry(args *Args)  {
 	// Build data struct
-	data := Data{args.Value}
+	data := Data{args.Value, args.Counter}
 	// Save in the Datastore
 	mutex.Lock()
 	datastore[args.Key] = data
@@ -53,7 +53,7 @@ func DeleteEntry(args *Args)  {
 
 func AppendEntry(args *Args)  {
 	// Build data struct
-	data := Data{args.Value}
+	data := Data{args.Value, args.Counter}
 	// Save in the Datastore
 	mutex.Lock()
 	defer mutex.Unlock()
