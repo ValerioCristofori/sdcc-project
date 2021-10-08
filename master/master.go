@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"net/rpc"
 	"sync"
+	"syscall"
 )
 
 // server conf
@@ -26,7 +27,6 @@ type ReplyMessage struct {
 
 var(
 	NodesAddress   []string
-	NumAddresses    = 3
  	mutex 		    = sync.RWMutex{}
 )
 
@@ -80,16 +80,17 @@ func serveRequests()  {
 	}
 }
 
-func shutdownCluster()  {
-	
-}
-
 
 /*
  * Master node provide monitoring for edge node with heartbeats every 4 seconds
- * Also provide the authentication system for production-site nodes, listing all the addresses of the edge nodes
+ * Also provide the authentication system for client nodes, listing all the addresses of the edge nodes
  */
 func main()  {
+	err := initDynamoDB("Sensors")
+	if err != nil {
+		syscall.Pause()
+		log.Fatal("Error in Init DynamoDB: ", err)
+	}
 	serveRequests()
 }
 

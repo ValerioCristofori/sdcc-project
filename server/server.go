@@ -245,10 +245,6 @@ func main()  {
 	if err != nil {
 		log.Fatal("Error in Init Map: ", err)
 	}
-	err = initDynamoDB("Sensors")
-	if err != nil {
-		log.Fatal("Error in Init DynamoDB: ", err)
-	}
 	// wait for table creation
 	//for {
 	//	tables := callTable()
@@ -269,8 +265,7 @@ func main()  {
 	applyCh = make(chan ApplyMsg)
 	go applyChRoutine()
 
-	persister := MakePersister()
-	rfRPC = Make( *listEndPointsRPC, cluster.indexEdgeRequest, persister, applyCh)
+	rfRPC = Make( *listEndPointsRPC, cluster.indexEdgeRequest, applyCh)
 	addHandlerRaft(serverRPC, rfRPC)
 
 

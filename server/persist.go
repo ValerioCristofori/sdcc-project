@@ -27,13 +27,6 @@ import (
 	"sync"
 )
 var lock 		sync.Mutex
-var mu        	sync.Mutex
-
-// Persister structure
-type Persister struct {
-	raftstate []byte
-	snapshot  []byte
-}
 
 // Marshal is a function that marshals the object into an
 // io.Reader.
@@ -95,61 +88,3 @@ func Load(path string, v interface{}) error {
 	defer f.Close()
 	return Unmarshal(f, v)
 }
-
-// MakePersister create a Persister instance
-func MakePersister() *Persister {
-	return &Persister{}
-}
-
-// Copy a Persister
-func (ps *Persister) Copy() *Persister {
-	mu.Lock()
-	defer mu.Unlock()
-	np := MakePersister()
-	np.raftstate = ps.raftstate
-	np.snapshot = ps.snapshot
-	return np
-}
-
-// SaveRaftState save data in a list of byte
-func (ps *Persister) SaveRaftState(data []byte) {
-	mu.Lock()
-	defer mu.Unlock()
-	ps.raftstate = data
-}
-
-// ReadRaftState return a list of byte
-func (ps *Persister) ReadRaftState() []byte {
-	mu.Lock()
-	defer mu.Unlock()
-	return ps.raftstate
-}
-
-// RaftStateSize return state size in int
-func (ps *Persister) RaftStateSize() int {
-	mu.Lock()
-	defer mu.Unlock()
-	return len(ps.raftstate)
-}
-
-// SaveSnapshot save a snapshot data in a list of byte
-func (ps *Persister) SaveSnapshot(snapshot []byte) {
-	mu.Lock()
-	defer mu.Unlock()
-	ps.snapshot = snapshot
-}
-
-// ReadSnapshot read data in list of byte
-func (ps *Persister) ReadSnapshot() []byte {
-	mu.Lock()
-	defer mu.Unlock()
-	return ps.snapshot
-}
-
-// SnapshotSize return the value in int
-func (ps *Persister) SnapshotSize() int {
-	mu.Lock()
-	defer mu.Unlock()
-	return len(ps.snapshot)
-}
-

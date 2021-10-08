@@ -13,6 +13,8 @@ var(
 	port 				= 12345
 	masterPort 			= 8080
 	masterAddr 			= fmt.Sprintf( "master:%d", masterPort)
+	timestampFormat 	= "2006-01-02 15:04:05"
+
 	leaderEdgeAddr 		string
 	allNodesAddr		[]string
 	errorLeader			= false
@@ -37,9 +39,7 @@ type Sensor struct {
 	Id string
 }
 
-var NSensors = 3
 var rangeFloats = 100.00
-var sensors []Sensor
 
 
 func GetEdgeAddresses() {
@@ -61,6 +61,7 @@ func GetEdgeAddresses() {
 	if err != nil {
 		log.Fatal("Error in Listener.GetAddresses: ", err)
 	}
+
 }
 
 func RpcBroadcastEdgeNode(command string, key string, value string)  {
@@ -119,6 +120,9 @@ func RpcSingleEdgeNode(command string, key string, value string, edgeAddr string
 			return true
 		}
 
+		fmt.Printf("Get Key from %s :\n Key:\t%s\nValue:\n%s\n", edgeAddr, key, dataResult.Value )
+
+
 	} else if strings.EqualFold(command,"put") {
 
 		// PUT body
@@ -134,6 +138,11 @@ func RpcSingleEdgeNode(command string, key string, value string, edgeAddr string
 			leaderEdgeAddr = edgeAddr
 		}
 
+		if reply.Ack {
+			fmt.Printf("Put key-value:\n Key:\t%s\nValue:\n%s\n", key, value )
+		} else {
+			fmt.Println("Key-Value not added")
+		}
 
 	} else if strings.EqualFold(command,"delete") {
 		// DELETE body
@@ -148,6 +157,12 @@ func RpcSingleEdgeNode(command string, key string, value string, edgeAddr string
 		// check if i call the leader or not
 		if reply.Ack{
 			leaderEdgeAddr = edgeAddr
+		}
+
+		if reply.Ack {
+			fmt.Printf("Delete key:\n Key:\t%s\n", key )
+		} else {
+			fmt.Println("Key not deleted")
 		}
 
 	} else if strings.EqualFold(command,"append") {
@@ -165,7 +180,11 @@ func RpcSingleEdgeNode(command string, key string, value string, edgeAddr string
 		if reply.Ack{
 			leaderEdgeAddr = edgeAddr
 		}
-
+		if reply.Ack {
+			fmt.Printf("Append value:\n Key:\t%s\nValue:\n%s\n", key, value )
+		} else {
+			fmt.Println("Value not added")
+		}
 
 	}
 

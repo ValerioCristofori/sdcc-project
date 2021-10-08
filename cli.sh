@@ -1,3 +1,3 @@
 #!/bin/bash
 
-sudo docker exec -it client-cli /client-cli
+sudo docker exec -it client-1 /client

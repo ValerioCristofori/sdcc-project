@@ -3,26 +3,27 @@ services:
   master:
     container_name: master
     build: ./master
+    volumes:
+      # Mount /var/run so we can access docker.sock and talk to Docker
+      - /var/run:/var/run
+      - $HOME/.aws/:/home/.aws/
+    environment:
+      HOME: "/home"
+      AWS_PROFILE: "default"
+      AWS_DEFAULT_REGION: "us-east-1"
 
-
-  production-site-1:
-    container_name: production-site-1
-    build: ./production-site
-    depends_on:
-      - master
-#  production-site-2:
-#    container_name: production-site-2
-#    build: ./production-site
-#    depends_on:
-#      - master
-
-  client-cli:
-    container_name: client-cli
-    build: ./client-cli
+  client-1:
+    container_name: client-1
+    build: client
     depends_on:
       - master
     tty: true
     stdin_open: true
+  client-2:
+    container_name: client-2
+    build: ./client
+    depends_on:
+      - master
 
   edge-node-1:
     container_name: edge-node-1
