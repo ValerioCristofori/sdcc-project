@@ -17,7 +17,7 @@ var(
 
 func appendOnLogFile( entry string )  {
 	// If the file doesn't exist, create it, or append to the file
-	f, err := os.OpenFile("test-latency", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	f, err := os.OpenFile("results/test-latency.csv", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -108,21 +108,21 @@ func test2()  {
 }
 
 func Test(t *testing.T)  {
-	time.Sleep(20 * time.Second)
-	fmt.Println("STARTING TEST..")
 	// Set right edge node address
 	GetEdgeAddresses()
+
+	fmt.Println("STARTING TESTS..")
 
 	start := time.Now()
 	test1()
 	timeTest1 := time.Since(start).Milliseconds()
-	appendOnLogFile(fmt.Sprintf("test1,%d", timeTest1))
+	appendOnLogFile(fmt.Sprintf("test1,%d\n", timeTest1))
 	fmt.Printf("Test 1 finished in %d milliseconds\n", timeTest1)
 
 	start = time.Now()
 	test2()
 	timeTest2 := time.Since(start).Milliseconds()
-	appendOnLogFile(fmt.Sprintf("test2,%d", timeTest2))
+	appendOnLogFile(fmt.Sprintf("test2,%d\n", timeTest2))
 	fmt.Printf("Test 2 finished in %d milliseconds\n", timeTest2)
 
 }

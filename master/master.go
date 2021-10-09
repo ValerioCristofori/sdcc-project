@@ -1,14 +1,15 @@
 package main
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
 	"log"
 	"net"
 	"net/http"
 	"net/rpc"
+	"os"
 	"sync"
-	"syscall"
 )
 
 // server conf
@@ -28,7 +29,24 @@ type ReplyMessage struct {
 var(
 	NodesAddress   []string
  	mutex 		    = sync.RWMutex{}
+	configuration   = Configuration{}
+	running			= false
 )
+
+type Configuration struct {
+	NumNodes    int
+	AwsRegion	string
+}
+
+func readConfig()  {
+	file, _ := os.Open("conf.json")
+	defer file.Close()
+	decoder := json.NewDecoder(file)
+	err := decoder.Decode(&configuration)
+	if err != nil {
+		fmt.Println("error:", err)
+	}
+}
 
 
 func (l *Listener)Register( address string, replyReg *ReplyMessage) error {
@@ -38,12 +56,25 @@ func (l *Listener)Register( address string, replyReg *ReplyMessage) error {
 	NodesAddress = append(NodesAddress, address)
 	mutex.Unlock()
 
+	for {
+		if len(NodesAddress) == configuration.NumNodes{
+			fmt.Println("All Nodes registered")
+			running = true
+			break
+		}
+	}
+
 	replyReg.Ack = true
 	return nil
 }
 
 func (l *Listener)GetAddresses(_ int, listAddresses *[]string) error {
 
+	for{
+		if running{
+			break
+		}
+	}
 	if len(NodesAddress) != 0 {
 		*listAddresses = NodesAddress
 	} else {
@@ -80,18 +111,24 @@ func serveRequests()  {
 	}
 }
 
-
-/*
- * Master node provide monitoring for edge node with heartbeats every 4 seconds
- * Also provide the authentication system for client nodes, listing all the addresses of the edge nodes
- */
-func main()  {
-	err := initDynamoDB("Sensors")
+func createDynamoDBTable( tableName string )  {
+	err := initDynamoDB(tableName)
 	if err != nil {
-		syscall.Pause()
 		log.Fatal("Error in Init DynamoDB: ", err)
 	}
+	fmt.Println("Created DynamoDB Table")
+}
+
+
+/*
+ * Master node
+ * provide the authentication system for client nodes, listing all the addresses of the edge nodes
+ */
+func main()  {
+	readConfig()
+	createDynamoDBTable("Sensors")
 	serveRequests()
+
 }
 
 

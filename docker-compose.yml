@@ -19,11 +19,15 @@ services:
       - master
     tty: true
     stdin_open: true
+    volumes:
+      - results1:/app/results
   client-2:
     container_name: client-2
     build: ./client
     depends_on:
       - master
+    volumes:
+      - results2:/app/results
 
   edge-node-1:
     container_name: edge-node-1
@@ -96,4 +100,6 @@ volumes:
   backup2:
   backup3:
   backup4:
+  results1:
+  results2:
 
