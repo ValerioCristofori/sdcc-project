@@ -1,31 +1,69 @@
-# sdcc-project
+# SDCC PROGETTO
+## Storage persistente di tipo Chiave-Valore
 
-## For Testing
+<img src="https://miro.medium.com/max/2000/1*qkPPwhQrMtoL-e18k0TXRA.png" width=500px>
 
-Server
+Lo scopo del progetto e' realizzare, nel linguaggio di programmazione Go, unsistema di storage distribuitoper edge computing.
+L'applicazione e' stata pensata come un servizio di storage persistente, replicato e di tipo chiave-valore, fornito da nodi edge che comunicano tra loro. I valori sono il risultato delle temperature misurate da un insieme di sensori.
+I client possono interagire con i nodi edge attraverso 4 chiamate RPC:
+- Put (key,value)
+- Get (key)
+- Append (key,value)
+- Delete (key)
+
+## Requisiti
+- <img src="https://blog.seeweb.it/wp-content/uploads/2015/06/homepage-docker-logo.png" width=50px> Docker
+- <img src="https://www.docker.com/blog/wp-content/uploads/2020/02/Compose.png" width=50px> Docker-compose
+- <img src="https://www.geekandjob.com/uploads/wiki/591f10c4e56bf30f45a4ad0b8956223c04802eac.png" width=50px> Go v1.17.1
+- <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/93/Amazon_Web_Services_Logo.svg/1200px-Amazon_Web_Services_Logo.svg.png" width=50px> Credenziali AWS valide
+
+## Struttura
+> ### Server
+> Rappresenta il nodo edge del sistema, responsabile di ricevere chiamate
+> RPC dai nodi client, fare storage K-V dei valori associate alle chiavi,
+> fare chiamate a DynamoDB e comunicare (tramite chiamate RPC) con gli altri
+> nodi edge per mantenere consistenti le repliche.
+> L'ultimo punto e' reso possibile tramite l'implementazione dell'algoritmo
+> [RAFT](https://raft.github.io/) tra i nodi edge.
+
+> ### Client
+> Il nodo che rappresenta un cluster di sensori di temperatura,
+> responsabile di generare valori randomici e effettuare le
+> chiamate RPC ai nodi edge.
+
+> ### Master
+> Il nodo Master e' responsabile della fase di registrazione
+> nel sistema tenendo traccia dei nodi che la compongono
+
+## How to Use
+Aggiornare il file ~/.aws/credentials con delle credenziali valide da [AWS](https://aws.amazon.com/it/).
+_(Attenzione: l'applicazione dovra' essere lanciata con i privilegi massimi, di conseguenza si dovra' modificare il file /root/.aws/credentials in dispositivi basati su Linux.)_
+Build e run del programma senza un backup con:
 ```
-go test -run TestServer
-
+./cold-start.sh
 ```
 
-Client
+Build e run del programma con backup:
 ```
-go test -run TestClient
+./start.sh
+```
+Terminare il programma con:
+```
+./shutdown.sh
+```
 
+Durante l'esecuzione del programma si puo' eseguire:
+```
+./cli.sh
+```
+per generare una shell di dialogo con il cluster di nodi edge
+
+Per eliminare la tabella di DynamoDB eseguire:
+```
+./delete-table-DynamoDB.sh
 ```
 
 
-### TO DO
-- [x] Se crusha il nodo leader il producer deve rimandare in broadcast il comando e aspettare la risposta del nuovo leader per poi comunicare con lui
-- [x] Implementare e testare un modello di consistenza di tipo sequenziale
-- [ ] Memorizzare nel cloud ( dynamoDB ) solo i valori di grandi dimensioni e/o scarsamente acceduti
-- [x] Tolleranza crush nodi edge
-- [ ] Persistere mappa chiave-valore nei nodi edge anche dopo la distruzione dei container
-- [ ] Stabilire giusta sequenza di startup dei container
-- [ ] Gestire errori di DynamoDB ( creazione tabella ecc. )
-- [ ] Chiamare funzioni PUT GET APPEND DELETE da edge per dynamoDB ( Quando? Inserire un TTL invece del Timestamp in *Data)
-- [x] Testing di: 85 Get, 15 Put; 40 Put, 20 Append, 40 Get
-- [ ] Implementare semantica errori di tipo at-least-once
-
-
-![img.png](img.png)
+#### Authors
+- Valerio Cristofori
+- Matteo Chiacchia
