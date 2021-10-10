@@ -30,7 +30,6 @@ func PutEntry(args *Args)  {
 	mutex.Lock()
 	datastore[args.Key] = data
 	mutex.Unlock()
-	fmt.Println("PUT ENTRY")
 	log.Println("PUT entry on datastore: {key: " + args.Key + "} {value: " + args.Value + "}" )
 	appendOnLogFile("PUT{key: " + args.Key + "}{value: " + args.Value + "}\n")
 }
@@ -44,7 +43,7 @@ func DeleteEntry(args *Args)  {
 		delete(datastore, args.Key)
 		mutex.Unlock()
 	}else {
-		log.Printf(fmt.Sprintf("key %s not in datastore",args.Key))
+		log.Printf(fmt.Sprintf("key %s not in datastore so is impossible to delete",args.Key))
 		return
 	}
 	log.Println("DELETE entry on datastore: {key: " + args.Key + "}" )
