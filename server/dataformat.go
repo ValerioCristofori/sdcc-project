@@ -3,6 +3,8 @@ package main
 import (
 	"errors"
 	"fmt"
+	"log"
+	"os"
 	"sync"
 )
 
@@ -14,7 +16,7 @@ const (
 	DELETE
 )
 
-var DIMENSION int64 = 5//represent 8 bytes
+var DIMENSION int64 = 100000//represent 8 bytes
 
 type Args struct {
 	Key string
@@ -55,9 +57,19 @@ func PrintMap()  {
 }
 
 func checkDimension(args Args){
+	f, err := os.OpenFile("access.log", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	if err != nil {
+		log.Fatal(err)
+	}
+	fi, err := f.Stat()
 
-	if int64(len(datastore)) + int64(len(args.Key)) + int64(len(args.Value)) > (3/4) * DIMENSION {
-		go putSomeItemsOnDynamoDB()
+	if err!=nil{
+		log.Fatal(err)
+	}
+	fileDim := fi.Size()
+
+	if fileDim + int64(len(args.Key)) + int64(len(args.Value))>DIMENSION {
+		putSomeItemsOnDynamoDB()
 	}
 
 
@@ -66,30 +78,9 @@ func checkDimension(args Args){
 
 func putSomeItemsOnDynamoDB() {
 
-	for int64(len(datastore)) >= DIMENSION * 2/3 {
+	for int64(len(datastore)) >= DIMENSION*2/3{
 
-		count := 0
-		var min int
-		var key string
 		//invia a dynamodb i valori con timestamp maggiore liberando spazio sull'edge node
-		for k, v := range datastore{
-
-			if count==0 {
-
-				min = v.Counter
-				key = k
-			} else {
-				if min >= v.Counter {
-					min = v.Counter
-					key = k
-				}
-			}
-			count++
-
-		}
-		item := Args{key, datastore[key].Value, datastore[key].Counter}
-		putItem(item)
-		DeleteEntry(&item)
 
 	}
 
@@ -110,9 +101,6 @@ func (t *Dataformat) Get(args Args, dataResult *Data) error {
 	if item.Value != "" {
 		d := Data{item.Value, item.Counter+1}
 		*dataResult = d
-		//if is in dynamodb, delete and save in edge datastore
-		PutEntry(&item)
-		deleteItem(item)
 		return nil
 	} else {
 		return errors.New(fmt.Sprintf("key %s not in datastore and not in database",args.Key) )

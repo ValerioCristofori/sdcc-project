@@ -36,8 +36,6 @@ func putItem(args Args){
 
 	_, err = svc.PutItem(input)
 
-	fmt.Println("PUT ITEM ON DYNAMODB")
-
 	if err != nil {
 		fmt.Println("Got error calling PutItem:")
 		fmt.Println(err.Error())
