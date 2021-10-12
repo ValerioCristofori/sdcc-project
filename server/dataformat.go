@@ -14,7 +14,7 @@ const (
 	DELETE
 )
 
-var DIMENSION = 1000
+var DIMENSION = 100000000
 
 
 type Args struct {
@@ -45,8 +45,8 @@ var mutex = sync.RWMutex{}
 
 func InitMap() error {
 	datastore = make(map[string]Data)
-	//toClean = make(chan bool, 1)
-	//go cleanMap()
+	toClean = make(chan bool, 1)
+	go cleanMap()
 	return nil
 }
 
@@ -55,7 +55,7 @@ func cleanMap()  {
 		tooValues := <-toClean
 		if tooValues {
 			fmt.Println("Too Values on Local Map.\nSending to DynamoDB")
-			putOnDynamoDB()
+			//putOnDynamoDB()
 			toClean <- false
 		}
 	}
@@ -74,11 +74,14 @@ func PrintMap()  {
 func checkDimension(args Args){
 
 	memoryBytes := 0
+
+
 	for k, v:= range datastore{
+		fmt.Println("#############################################")
 		memoryBytes += len(k) + len(v.Value) + 4
 	}
 
-	if memoryBytes >= (2/3)* DIMENSION {
+	if memoryBytes + len(args.Key) + len(args.Value) + 4 >= (2/3)* DIMENSION {
 		toClean <- true
 	}
 
@@ -90,7 +93,6 @@ func checkDimension(args Args){
 func putOnDynamoDB() {
 
 	for len(datastore) >= DIMENSION*2/3 {
-
 		count := 0
 		var min int
 		var key string
@@ -111,9 +113,10 @@ func putOnDynamoDB() {
 
 		}
 		item := Args{key, datastore[key].Value, datastore[key].Counter}
-		putItem(item)
-		DeleteEntry(&item)
-
+		//putItem(item)
+		//DeleteEntry(&item)
+		fmt.Println(item.Value)
+		break
 	}
 
 }
@@ -122,28 +125,31 @@ func putOnDynamoDB() {
 func (t *Dataformat) Get(args Args, dataResult *Data) error {
 	// Get from the datastore
 	mutex.Lock()
-	defer mutex.Unlock()
 	if d, found := datastore[args.Key]; found {
 		*dataResult = d
 		d.Counter = d.Counter + 1
+		mutex.Unlock()
 		return nil
-	}else {
-		return errors.New(fmt.Sprintf("key %s not in datastore and not in database",args.Key) )
-	}/*
+	}
+	mutex.Unlock()
 	item := getItem(args.Key)
 	if item.Value != "" {
+		fmt.Println("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@")
 		d := Data{item.Value, item.Counter+1}
 		*dataResult = d
 		PutEntry(&item)
 		return nil
-	}*/
+	}else {
+		return errors.New(fmt.Sprintf("key %s not in datastore and not in database",args.Key) )
+	}
+
 }
 
 
 func (t *Dataformat) Put(args Args, reply *DataformatReply) error {
 	op := PUT
 
-	//checkDimension(args)
+	checkDimension(args)
 
 	_,_,isLeader := rfRPC.rf.Start(Command{Op: op,Key: args.Key,Value: args.Value})
 	if !isLeader {
@@ -151,6 +157,7 @@ func (t *Dataformat) Put(args Args, reply *DataformatReply) error {
 		reply.Ack = false
 		return nil
 	}
+
 	reply.Ack = true
 	//if leader do immediately the op
 

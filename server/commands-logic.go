@@ -30,15 +30,14 @@ func PutEntry(args *Args)  {
 	mutex.Lock()
 	datastore[args.Key] = data
 	mutex.Unlock()
-	fmt.Println("PUT ENTRY")
 	log.Println("PUT entry on datastore: {key: " + args.Key + "} {value: " + args.Value + "}" )
 	appendOnLogFile("PUT{key: " + args.Key + "}{value: " + args.Value + "}\n")
 }
 
 func DeleteEntry(args *Args)  {
 	// Delete in the Datastore
-	mutex.Lock()
-	defer mutex.Unlock()
+	//mutex.Lock()
+	//defer mutex.Unlock()
 	if _, found := datastore[args.Key]; found {
 		mutex.Lock()
 		delete(datastore, args.Key)
@@ -55,17 +54,21 @@ func AppendEntry(args *Args)  {
 	// Build data struct
 	data := Data{args.Value, args.Counter}
 	// Save in the Datastore
-	mutex.Lock()
-	defer mutex.Unlock()
+
 	if d, found := datastore[args.Key]; found {
 		d.Value = d.Value + "\n" + args.Value // dummy append
 		// update in memory
+		mutex.Lock()
+
 		datastore[args.Key] = d
+		mutex.Unlock()
 		// update the result
 		data = d
 	} else {
 		// Normal Put func
+		mutex.Lock()
 		datastore[args.Key] = data
+		mutex.Unlock()
 	}
 	log.Println("APPEND entry on datastore: {key: " + args.Key + "} {value: " + args.Value + "}" )
 	appendOnLogFile("APPEND{key: " + args.Key + "}{value: " + args.Value + "}\n")
