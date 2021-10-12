@@ -108,11 +108,12 @@ func getItem (key string) Args{
 		fmt.Println("Could not find ", key, " sensor")
 	} else {
 		item.Counter++
+		fmt.Println("Found item:")
+		fmt.Println("Key:  ", item.Key)
+		fmt.Println("Value: ", item.Value)
 	}
 
-	fmt.Println("Found item:")
-	fmt.Println("Key:  ", item.Key)
-	fmt.Println("Value: ", item.Value)
+
 	return item
 
 }
