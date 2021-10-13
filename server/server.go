@@ -90,15 +90,16 @@ func applyChRoutine()  {
 
 
 func shutdownHandler() {
-
+	var tempDatastore map[string]Data
 	sigs := make(chan os.Signal, 1)
 
 	signal.Notify(sigs, syscall.SIGINT, syscall.SIGTERM)
 	go func() {
 		sig := <-sigs
+		tempDatastore = datastore
 		fmt.Println(sig)
 		fmt.Println("Saving persist log entries and Raft state...")
-		if err := Save("./vol/backup", datastore); err != nil {
+		if err := Save("./vol/backup", tempDatastore); err != nil {
 			log.Fatalln(err)
 		}
 		fmt.Println("Exiting...")
@@ -108,8 +109,9 @@ func shutdownHandler() {
 
 	go func() {
 		for range time.Tick(5 * time.Second){
+			tempDatastore = datastore
 			fmt.Println("Saving persist log entries and Raft state...")
-			if err := Save("./vol/backup", datastore); err != nil {
+			if err := Save("./vol/backup", tempDatastore); err != nil {
 				log.Fatalln(err)
 			}
 		}

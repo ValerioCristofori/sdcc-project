@@ -4,9 +4,10 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"sync"
 )
 
-
+var mutexD = sync.Mutex{}
 
 func appendOnLogFile( entry string )  {
 	// If the file doesn't exist, create it, or append to the file
@@ -27,27 +28,25 @@ func PutEntry(args *Args)  {
 	// Build data struct
 	data := Data{args.Value, args.Counter}
 	// Save in the Datastore
-	mutex.Lock()
+	mutexD.Lock()
+	defer mutexD.Unlock()
 	datastore[args.Key] = data
-	mutex.Unlock()
 	log.Println("PUT entry on datastore: {key: " + args.Key + "} {value: " + args.Value + "}" )
 	appendOnLogFile("PUT{key: " + args.Key + "}{value: " + args.Value + "}\n")
 }
 
 func DeleteEntry(args *Args)  {
 	// Delete in the Datastore
-	//mutex.Lock()
-	//defer mutex.Unlock()
+	mutexD.Lock()
+	defer mutexD.Unlock()
 	if _, found := datastore[args.Key]; found {
-		mutex.Lock()
+
 		delete(datastore, args.Key)
-		mutex.Unlock()
 	}else {
 		log.Printf(fmt.Sprintf("key %s not in datastore",args.Key))
 		return
 	}
 	fmt.Println("DELETE entry on datastore: {key: " + args.Key + "}" )
-	log.Println("DELETE entry on datastore: {key: " + args.Key + "}" )
 
 }
 
@@ -55,21 +54,18 @@ func AppendEntry(args *Args)  {
 	// Build data struct
 	data := Data{args.Value, args.Counter}
 	// Save in the Datastore
-
+	mutexD.Lock()
+	defer mutexD.Unlock()
 	if d, found := datastore[args.Key]; found {
 		d.Value = d.Value + "\n" + args.Value // dummy append
 		// update in memory
-		mutex.Lock()
 
 		datastore[args.Key] = d
-		mutex.Unlock()
 		// update the result
 		data = d
 	} else {
 		// Normal Put func
-		mutex.Lock()
 		datastore[args.Key] = data
-		mutex.Unlock()
 	}
 	log.Println("APPEND entry on datastore: {key: " + args.Key + "} {value: " + args.Value + "}" )
 	appendOnLogFile("APPEND{key: " + args.Key + "}{value: " + args.Value + "}\n")

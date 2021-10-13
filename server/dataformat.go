@@ -46,23 +46,23 @@ var mutex = sync.RWMutex{}
 
 func InitMap() error {
 	datastore = make(map[string]Data)
-	toClean = make(chan bool, 1)
-	go cleanMap()
+	//toClean = make(chan bool, 1)
+	//go cleanMap()
 	return nil
 }
 
-func cleanMap()  {
-	for{
-		tooValues := <-toClean
-		if tooValues {
-			fmt.Println("Too Values on Local Map.\nSending to DynamoDB")
-			//putOnDynamoDB()
-			toClean <- false
-		}
-	}
-
-
-}
+//func cleanMap()  {
+//	for{
+//		tooValues := <-toClean
+//		if tooValues {
+//			fmt.Println("Too Values on Local Map.\nSending to DynamoDB")
+//			//putOnDynamoDB()
+//			toClean <- false
+//		}
+//	}
+//
+//
+//}
 
 func PrintMap()  {
 	// loop over elements of slice
@@ -76,10 +76,11 @@ func checkDimension(args Args){
 
 	memoryBytes := 0
 
-
+	mutex.Lock()
 	for k, v:= range datastore{
 		memoryBytes = memoryBytes + len(k) + len(v.Value) + 4
 	}
+	mutex.Unlock()
 	fmt.Println(strconv.Itoa(memoryBytes+ len(args.Key) + len(args.Value) + 4) + "      &&&&&&&&&&&&&&&&&&&&&&&&&")
 	fmt.Println(strconv.Itoa( 2 * DIMENSION/3) + "      &&&&&&&&&&&&&&&&&&&&&&&&&")
 	if (memoryBytes + len(args.Key) + len(args.Value) + 4) >= 2 * DIMENSION/3 {
@@ -95,6 +96,8 @@ func checkDimension(args Args){
 
 func putOnDynamoDB() {
 
+	mutex.Lock()
+	defer mutex.Unlock()
 	for len(datastore) >= DIMENSION / 2 {
 		count := 0
 		var max string
@@ -127,20 +130,19 @@ func putOnDynamoDB() {
 func (t *Dataformat) Get(args Args, dataResult *Data) error {
 	// Get from the datastore
 	mutex.Lock()
+	defer mutex.Unlock()
 	if d, found := datastore[args.Key]; found {
 		*dataResult = d
 		d.Counter = d.Counter + 1
-		mutex.Unlock()
 		return nil
 	}
-	mutex.Unlock()
 
 	item := getItem(args.Key)
 	if item.Value != "" {
 		d := Data{item.Value, item.Counter+1}
 		*dataResult = d
 		PutEntry(&item)
-		go deleteItem(item)
+		//go deleteItem(item)
 		return nil
 	}else {
 		return errors.New(fmt.Sprintf("key %s not in datastore and not in database",args.Key) )

@@ -49,9 +49,12 @@ func GetEdgeAddresses() {
 	var client *rpc.Client
 
 	// Try to connect to master
+retry:
 	client, err := rpc.DialHTTP("tcp", masterAddr)
 	if err != nil {
 		log.Println("Error in dialing: ", err)
+		time.Sleep(500*time.Millisecond)
+		goto retry
 	}
 	defer client.Close()
 
