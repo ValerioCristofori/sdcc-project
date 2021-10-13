@@ -3,6 +3,7 @@ package main
 import (
 	"errors"
 	"fmt"
+	"strconv"
 	"sync"
 )
 
@@ -14,7 +15,7 @@ const (
 	DELETE
 )
 
-var DIMENSION = 100000000
+var DIMENSION = 300
 
 
 type Args struct {
@@ -77,12 +78,15 @@ func checkDimension(args Args){
 
 
 	for k, v:= range datastore{
-		fmt.Println("#############################################")
-		memoryBytes += len(k) + len(v.Value) + 4
+		memoryBytes = memoryBytes + len(k) + len(v.Value) + 4
 	}
+	fmt.Println(strconv.Itoa(memoryBytes+ len(args.Key) + len(args.Value) + 4) + "      &&&&&&&&&&&&&&&&&&&&&&&&&")
+	fmt.Println(strconv.Itoa( 2 * DIMENSION/3) + "      &&&&&&&&&&&&&&&&&&&&&&&&&")
+	if (memoryBytes + len(args.Key) + len(args.Value) + 4) >= 2 * DIMENSION/3 {
 
-	if memoryBytes + len(args.Key) + len(args.Value) + 4 >= (2/3)* DIMENSION {
-		toClean <- true
+		fmt.Println("#######################################################################\n#######################################################################\n#######################################################################")
+		//toClean <- true
+		go putOnDynamoDB()
 	}
 
 
@@ -92,7 +96,7 @@ func checkDimension(args Args){
 
 func putOnDynamoDB() {
 
-	for len(datastore) >= DIMENSION*2/3 {
+	for len(datastore) >= DIMENSION * 2/3 {
 		count := 0
 		var min int
 		var key string
@@ -113,7 +117,7 @@ func putOnDynamoDB() {
 
 		}
 		item := Args{key, datastore[key].Value, datastore[key].Counter}
-		//putItem(item)
+		//go putItem(item)
 		//DeleteEntry(&item)
 		fmt.Println(item.Value)
 		break
@@ -132,9 +136,9 @@ func (t *Dataformat) Get(args Args, dataResult *Data) error {
 		return nil
 	}
 	mutex.Unlock()
+
 	item := getItem(args.Key)
 	if item.Value != "" {
-		fmt.Println("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@")
 		d := Data{item.Value, item.Counter+1}
 		*dataResult = d
 		PutEntry(&item)
@@ -173,7 +177,7 @@ func (t *Dataformat) Delete(args Args, reply *DataformatReply) error {
 		return nil
 	}
 	reply.Ack = true
-	deleteItem(args)
+	go deleteItem(args)
 	//if leader do immediately the op
 	return nil
 }
@@ -187,9 +191,9 @@ func (t *Dataformat) Append(args Args, reply *DataformatReply) error {
 		return nil
 	}
 
-	if getItem(args.Key).Value!="" {
-		appendItem(args)
-	}
+
+	go appendItem(args)
+
 
 	reply.Ack = true
 	//if leader do immediately the op
