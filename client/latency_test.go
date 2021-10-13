@@ -95,13 +95,13 @@ func test2()  {
 	var (
 		numGet 		 = TotQuery*40/100
 		numPut 		 = TotQuery*40/100
-		//numAppend 	 = TotQuery*20/100
+		numAppend 	 = TotQuery*20/100
 		wg			 = new(sync.WaitGroup)
 	)
-	wg.Add(2)
+	wg.Add(3)
 	go getCalls(wg, numGet)
 	go putCalls(wg, numPut)
-	//go appendCalls(wg, numAppend)
+	go appendCalls(wg, numAppend)
 
 	wg.Wait()
 

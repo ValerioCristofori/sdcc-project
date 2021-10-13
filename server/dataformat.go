@@ -84,8 +84,7 @@ func checkDimension(args Args){
 	fmt.Println(strconv.Itoa( 2 * DIMENSION/3) + "      &&&&&&&&&&&&&&&&&&&&&&&&&")
 	if (memoryBytes + len(args.Key) + len(args.Value) + 4) >= 2 * DIMENSION/3 {
 
-		fmt.Println("#######################################################################\n#######################################################################\n#######################################################################")
-		//toClean <- true
+		fmt.Println("Too Values on Local Map.\nSending to DynamoDB")
 		go putOnDynamoDB()
 	}
 
@@ -98,27 +97,26 @@ func putOnDynamoDB() {
 
 	for len(datastore) >= DIMENSION * 2/3 {
 		count := 0
-		var min int
-		var key string
+		var max string
+		//var key string
 		//invia a dynamodb i valori con timestamp maggiore liberando spazio sull'edge node
 		for k, v := range datastore {
 
 			if count == 0 {
 
-				min = v.Counter
-				key = k
+				max = k
+
 			} else {
-				if min >= v.Counter {
-					min = v.Counter
-					key = k
+				if len(v.Value) >= len(datastore[max].Value){
+					max = k
 				}
 			}
 			count++
 
 		}
-		item := Args{key, datastore[key].Value, datastore[key].Counter}
-		//go putItem(item)
-		//DeleteEntry(&item)
+		item := Args{max, datastore[max].Value, datastore[max].Counter}
+		go putItem(item)
+		DeleteEntry(&item)
 		fmt.Println(item.Value)
 		break
 	}
