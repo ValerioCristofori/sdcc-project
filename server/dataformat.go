@@ -95,7 +95,7 @@ func checkDimension(args Args){
 
 func putOnDynamoDB() {
 
-	for len(datastore) >= DIMENSION * 2/3 {
+	for len(datastore) >= DIMENSION / 2 {
 		count := 0
 		var max string
 		//var key string
@@ -140,6 +140,7 @@ func (t *Dataformat) Get(args Args, dataResult *Data) error {
 		d := Data{item.Value, item.Counter+1}
 		*dataResult = d
 		PutEntry(&item)
+		go deleteItem(item)
 		return nil
 	}else {
 		return errors.New(fmt.Sprintf("key %s not in datastore and not in database",args.Key) )

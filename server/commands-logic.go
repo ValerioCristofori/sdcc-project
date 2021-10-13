@@ -46,6 +46,7 @@ func DeleteEntry(args *Args)  {
 		log.Printf(fmt.Sprintf("key %s not in datastore",args.Key))
 		return
 	}
+	fmt.Println("DELETE entry on datastore: {key: " + args.Key + "}" )
 	log.Println("DELETE entry on datastore: {key: " + args.Key + "}" )
 
 }
