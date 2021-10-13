@@ -15,7 +15,7 @@ const (
 	DELETE
 )
 
-var DIMENSION = 300
+var DIMENSION = 10
 
 
 type Args struct {
