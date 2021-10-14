@@ -7,7 +7,6 @@ import (
 	"github.com/aws/aws-sdk-go/service/dynamodb"
 	"github.com/aws/aws-sdk-go/service/dynamodb/dynamodbattribute"
 	"log"
-	"os"
 )
 
 var tableName = "Sensors"
@@ -25,7 +24,7 @@ func putItem(args Args){
 	if err != nil {
 		fmt.Println("Got error marshalling map:")
 		fmt.Println(err.Error())
-		os.Exit(1)
+		return
 	}
 
 	// Create item in table
@@ -39,7 +38,7 @@ func putItem(args Args){
 	if err != nil {
 		fmt.Println("Got error calling PutItem:")
 		fmt.Println(err.Error())
-		//os.Exit(1)
+		return
 	}
 
 	fmt.Println("Successfully added" + args.Key + "sensor")
@@ -130,7 +129,7 @@ func appendItem(args Args) {
 		putItem(args)
 		return
 	}
-
+	//append value to existing item
 	item.Value = item.Value + "\n" + args.Value
 	putItem(item)
 

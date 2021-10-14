@@ -11,7 +11,7 @@ import (
 )
 
 var(
-	TotQuery = 15000
+	TotQuery = 1000
 	rangeKeys = 100
 )
 

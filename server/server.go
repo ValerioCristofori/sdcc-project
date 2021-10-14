@@ -132,21 +132,11 @@ func main()  {
 	if err != nil {
 		log.Fatal("Error in Init Map: ", err)
 	}
-	// wait for table creation
-	//for {
-	//	tables := callTable()
-	//	if tables == 0 {
-	//		print("Wait")
-	//	} else {
-	//		fmt.Println("Created dynamoDB table!")
-	//		break
-	//	}
-	//}
+
 	err = Load("./vol/backup", &datastore )
 	if err != nil {
 		log.Println("Not able to backup persistent state")
 	}
-	//PrintMap()
 	shutdownHandler()
 	// listen to messages from Raft indicating newly committed messages.
 	applyCh = make(chan ApplyMsg)
@@ -156,15 +146,6 @@ func main()  {
 	addHandlerRaft(serverRPC, rfRPC)
 	addHandlerData(serverRPC, new(Dataformat))
 
-	//time.Sleep(8 * time.Second)
-	//if rfRPC.rf.state == LEADER {
-	//	log.Println("EXITING FROM LEADER")
-	//	os.Exit(1)
-	//}
-	//if cluster.indexEdgeRequest == 1 {
-	//		log.Println("EXITING")
-	//		os.Exit(1)
-	//}
 	syscall.Pause()
 
 }
