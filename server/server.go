@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"log"
 	"net"
@@ -31,6 +32,10 @@ type Cluster struct {
 	indexEdgeRequest 	int
 }
 
+type Configuration struct {
+	AwsRegion	string
+}
+
 func (c *Cluster) toString() string{
 	return fmt.Sprintf("Cluster: %s, My position: %d", c.Nodes, c.indexEdgeRequest)
 }
@@ -39,15 +44,28 @@ func (c *Cluster) toString() string{
 var (
 	cluster 			= new(Cluster)
 	listEndPointsRPC 	= new([]*rpc.Client)
+	configuration   	= Configuration{}
+	// interface to RaftRPC
+	rfRPC 			*RaftRPC
+	// channel for newly committed messages
+	applyCh 		chan ApplyMsg
 )
 
 
-// interface to RaftRPC
-var rfRPC *RaftRPC
-// channel for newly committed messages
-var applyCh chan ApplyMsg
 
 
+
+
+
+func readConfig()  {
+	file, _ := os.Open("conf.json")
+	defer file.Close()
+	decoder := json.NewDecoder(file)
+	err := decoder.Decode(&configuration)
+	if err != nil {
+		fmt.Println("error:", err)
+	}
+}
 
 func getMyAddress() string {
 	addrs, err := net.InterfaceAddrs()
@@ -121,6 +139,7 @@ func shutdownHandler() {
 func main()  {
 
 	// start configuration and initialization of raft cluster
+	readConfig()
 	register()
 	getListEdgeNodes()
 

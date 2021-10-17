@@ -11,8 +11,8 @@ import (
 )
 
 var(
-	TotQuery = 1000
-	rangeKeys = 100
+	TotQuery = 10
+	rangeKeys = 10
 )
 
 func appendOnLogFile( entry string )  {

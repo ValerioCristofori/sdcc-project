@@ -1,4 +1,6 @@
 {
   "NumNodes": 4,
-  "AwsRegion": "us-east-1"
+  "AwsRegion": "us-east-1",
+  "roleARN": "arn:aws:iam::566997104119:role/lambda-basic-execution"
 }
+

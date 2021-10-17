@@ -16,7 +16,6 @@ import (
 var (
 	path  		= "/"
 	debugPath 	= "/debug"
-	edgePort	= 12345
 	port 		= 8080
 )
 
@@ -36,6 +35,7 @@ var(
 type Configuration struct {
 	NumNodes    int
 	AwsRegion	string
+	roleARN		string
 }
 
 func readConfig()  {
@@ -126,7 +126,8 @@ func createDynamoDBTable( tableName string )  {
  */
 func main()  {
 	readConfig()
-	createDynamoDBTable("Sensors")
+	//ConfigLambdaFunctions()
+	//createDynamoDBTable("Sensors")
 	serveRequests()
 
 }
