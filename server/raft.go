@@ -50,7 +50,6 @@ type Command struct{
 	Op			int
 	Key 		string
 	Value 		string
-	Timestamp	time.Time
 }
 
 func (c *Command) toString() string{
@@ -63,7 +62,7 @@ func (c *Command) toString() string{
 	default:
 		operation = ""
 	}
-	return fmt.Sprintf("{Op: %s;Key: %s;Value: %s;Timestamp: %s}", operation, c.Key, c.Value, c.Timestamp.String())
+	return fmt.Sprintf("{Op: %s;Key: %s;Value: %s}", operation, c.Key, c.Value)
 }
 
 // LogEntry structure
@@ -554,7 +553,7 @@ func (rf *Raft) Start(command Command) (int, int, bool) {
 	if isLeader {
 		index = rf.getLastIndex() + 1
 		rf.logs = append(rf.logs, LogEntry{Index: index, Term: term, Command: command})
-		fmt.Println("Append entry command to commit to all nodes: " + command.toString() )
+		//fmt.Println("Append entry command to commit to all nodes: " + command.toString() )
 	}
 
 	return index, term, isLeader

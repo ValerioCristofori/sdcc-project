@@ -108,16 +108,20 @@ func applyChRoutine()  {
 
 
 func shutdownHandler() {
-	var tempDatastore map[string]Data
+	m := map[string]string{}
+
 	sigs := make(chan os.Signal, 1)
 
 	signal.Notify(sigs, syscall.SIGINT, syscall.SIGTERM)
 	go func() {
 		sig := <-sigs
-		tempDatastore = datastore
+		datastore.Range(func(key, value interface{}) bool {
+			m[key.(string)] = value.(Data).Value
+			return true
+		})
 		fmt.Println(sig)
 		fmt.Println("Saving persist log entries and Raft state...")
-		if err := Save("./vol/backup", tempDatastore); err != nil {
+		if err := Save("./vol/backup", m); err != nil {
 			log.Fatalln(err)
 		}
 		fmt.Println("Exiting...")
@@ -126,10 +130,13 @@ func shutdownHandler() {
 	}()
 
 	go func() {
-		for range time.Tick(5 * time.Second){
-			tempDatastore = datastore
+		for range time.Tick(10 * time.Second){
+			datastore.Range(func(key, value interface{}) bool {
+				m[key.(string)] = value.(Data).Value
+				return true
+			})
 			fmt.Println("Saving persist log entries and Raft state...")
-			if err := Save("./vol/backup", tempDatastore); err != nil {
+			if err := Save("./vol/backup", m); err != nil {
 				log.Fatalln(err)
 			}
 		}
@@ -147,12 +154,7 @@ func main()  {
 	go startListener(serverRPC)
 	connectToAllNodes()
 
-	err := InitMap()
-	if err != nil {
-		log.Fatal("Error in Init Map: ", err)
-	}
-
-	err = Load("./vol/backup", &datastore )
+	err := Load("./vol/backup", &datastore )
 	if err != nil {
 		log.Println("Not able to backup persistent state")
 	}
@@ -164,6 +166,7 @@ func main()  {
 	rfRPC = Make( *listEndPointsRPC, cluster.indexEdgeRequest, applyCh)
 	addHandlerRaft(serverRPC, rfRPC)
 	addHandlerData(serverRPC, new(Dataformat))
+	go cleanThread()
 
 	syscall.Pause()
 

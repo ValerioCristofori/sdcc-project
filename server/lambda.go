@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"strings"
+	"time"
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
@@ -22,6 +24,7 @@ func createLambdaServiceClient() *lambda.Lambda {
 
 func GetLambda(request Args)  Response{
 
+	exp := 1
 	client := createLambdaServiceClient()
 
 	payload, err := json.Marshal(request)
@@ -29,8 +32,14 @@ func GetLambda(request Args)  Response{
 		fmt.Println("Error marshalling Get request")
 		return Response{}
 	}
+exponentialBackOffLabelGet:
 	result, err := client.Invoke(&lambda.InvokeInput{FunctionName: aws.String("get"), Payload: payload})
 	if err != nil {
+		if strings.Contains(err.Error(), "TooManyRequestsException"){
+			time.Sleep( time.Duration(exp)*time.Millisecond)
+			exp = exp*2
+			goto exponentialBackOffLabelGet
+		}
 		fmt.Println("Error calling Get ", err)
 		return Response{}
 	}
@@ -48,6 +57,7 @@ func GetLambda(request Args)  Response{
 
 func PutLambda(request Args) {
 
+	exp := 1
 	client := createLambdaServiceClient()
 
 	payload, err := json.Marshal(request)
@@ -55,8 +65,15 @@ func PutLambda(request Args) {
 		fmt.Println("Error marshalling Put request")
 		return
 	}
+
+exponentialBackOffLabelPut:
 	result, err := client.Invoke(&lambda.InvokeInput{FunctionName: aws.String("put"), Payload: payload})
 	if err != nil {
+		if strings.Contains(err.Error(), "TooManyRequestsException"){
+			time.Sleep( time.Duration(exp)*time.Millisecond)
+			exp = exp*2
+			goto exponentialBackOffLabelPut
+		}
 		fmt.Println("Error calling Put ", err)
 		return
 	}
@@ -76,6 +93,7 @@ func PutLambda(request Args) {
 
 func DeleteLambda(request Args) {
 
+	exp := 1
 	client := createLambdaServiceClient()
 
 	payload, err := json.Marshal(request)
@@ -83,8 +101,15 @@ func DeleteLambda(request Args) {
 		fmt.Println("Error marshalling Delete request")
 		return
 	}
+
+exponentialBackOffLabelDel:
 	result, err := client.Invoke(&lambda.InvokeInput{FunctionName: aws.String("delete"), Payload: payload})
 	if err != nil {
+		if strings.Contains(err.Error(), "TooManyRequestsException"){
+			time.Sleep( time.Duration(exp)*time.Millisecond)
+			exp = exp*2
+			goto exponentialBackOffLabelDel
+		}
 		fmt.Println("Error calling Delete ", err)
 		return
 	}
@@ -104,6 +129,7 @@ func DeleteLambda(request Args) {
 
 func AppendLambda(request Args) {
 
+	exp := 1
 	client := createLambdaServiceClient()
 
 	payload, err := json.Marshal(request)
@@ -111,8 +137,15 @@ func AppendLambda(request Args) {
 		fmt.Println("Error marshalling Append request")
 		return
 	}
+
+exponentialBackOffLabelApp:
 	result, err := client.Invoke(&lambda.InvokeInput{FunctionName: aws.String("append"), Payload: payload})
 	if err != nil {
+		if strings.Contains(err.Error(), "TooManyRequestsException"){
+			time.Sleep( time.Duration(exp)*time.Millisecond)
+			exp = exp*2
+			goto exponentialBackOffLabelApp
+		}
 		fmt.Println("Error calling Append ", err)
 		return
 	}

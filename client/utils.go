@@ -147,7 +147,7 @@ retry:
 		}
 
 		if reply.Ack {
-			fmt.Printf("Put key-value:\n Key:\t%s\nValue:\n%s\n", key, value )
+			//fmt.Printf("Put key-value:\n Key:\t%s\nValue:\n%s\n", key, value )
 		}
 
 	} else if strings.EqualFold(command,"delete") {
@@ -166,7 +166,7 @@ retry:
 		}
 
 		if reply.Ack {
-			fmt.Printf("Delete key:\n Key:\t%s\n", key )
+			//fmt.Printf("Delete key:\n Key:\t%s\n", key )
 		}
 
 	} else if strings.EqualFold(command,"append") {
@@ -185,7 +185,7 @@ retry:
 			leaderEdgeAddr = edgeAddr
 		}
 		if reply.Ack {
-			fmt.Printf("Append value:\n Key:\t%s\nValue:\n%s\n", key, value )
+			//fmt.Printf("Append value:\n Key:\t%s\nValue:\n%s\n", key, value )
 		}
 
 	}

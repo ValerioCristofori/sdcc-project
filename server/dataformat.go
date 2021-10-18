@@ -4,6 +4,8 @@ import (
 	"errors"
 	"fmt"
 	"sync"
+	"sync/atomic"
+	"time"
 )
 
 // operations
@@ -13,9 +15,6 @@ const (
 	APPEND
 	DELETE
 )
-
-var DIMENSION = 1000
-
 
 type Args struct {
 	Key string
@@ -34,102 +33,64 @@ type DataformatReply struct {
 }
 
 type Data struct {
-	Value string
+	Value 		string
+	Counter 	int64 // older if smaller
 }
 
 
+type GlobalCounter  int64
+type Dataformat 	int //edge node
 
-// Map : K -> key, V -> data struct
-var datastore map[string]Data
-type Dataformat int //edge node
 
-// mutex for sync
-var mutex = sync.RWMutex{}
+var (
+	 DIMENSION 		= 1000
+	 datastore 		sync.Map
+	 counter 		GlobalCounter = 0
+)
 
-func InitMap() error {
-	//create local datastore
-	datastore = make(map[string]Data)
-	return nil
+func (c *GlobalCounter) inc() int64 {
+	return atomic.AddInt64((*int64)(c), 1)
+}
+
+func (c *GlobalCounter) get() int64 {
+	return atomic.LoadInt64((*int64)(c))
 }
 
 func PrintMap()  {
 	// loop over elements of slice
 	fmt.Println("Printing Map Datastore")
-	for k, v := range datastore {
-		fmt.Println(k, "value is", v)
-	}
-}
+	// with syncmap, looping over all keys is simple without locking the whole map for the entire loop
+	datastore.Range(func(key, value interface{}) bool {
+		// cast value to correct format
+		val, ok := value.(string)
+		if !ok {
+			// this will break iteration
+			return false
+		}
+		// do something with key/value
+		fmt.Println(key, " value is ", val)
 
-//func checkDimension(args Args){
-//
-//	memoryBytes := 0
-//
-//	mutex.Lock()
-//	//check how much storage is used
-//	for k, v:= range datastore{
-//		memoryBytes = memoryBytes + len(k) + len(v.Value) + 4
-//	}
-//	mutex.Unlock()
-//	if (memoryBytes + len(args.Key) + len(args.Value) + 4) >= 2 * DIMENSION/3 {
-//
-//		fmt.Println("Too Values on Local Map.\nSending to DynamoDB")
-//		go putOnDynamoDB()
-//	}
-//
-//
-//
-//
-//}
-//
-//func putOnDynamoDB() {
-//
-//	mutex.Lock()
-//	defer mutex.Unlock()
-//	//free up memory until it is half of the total
-//	for len(datastore) >= DIMENSION / 2 {
-//		count := 0
-//		var max string
-//
-//
-//		for k, v := range datastore {
-//
-//			if count == 0 {
-//
-//				max = k
-//
-//			} else {
-//				if len(v.Value) >= len(datastore[max].Value){
-//					max = k
-//				}
-//			}
-//			count++
-//
-//		}
-//
-//		item := Args{max, datastore[max].Value}
-//		//send to dynamodb the value with max dimension
-//		PutLambda(item)
-//		//delete value from local storage
-//		DeleteEntry(&item)
-//	}
-//
-//}
+		// this will continue iterating
+		return true
+	})
+}
 
 
 func (t *Dataformat) Get(args Args, dataResult *Data) error {
 	// Get from the datastore
-	mutex.Lock()
-	defer mutex.Unlock()
 	//if found in datastore return
-	if d, found := datastore[args.Key]; found {
-		*dataResult = d
+	data, ok := datastore.Load(args.Key)
+	if ok {
+		*dataResult = Data{Value: data.(Data).Value, Counter: counter.inc()}
+		datastore.Store( args.Key, *dataResult)
 		return nil
 	}
 	//else search it in the cloud
 	resp := GetLambda(args)
 	if resp.Value != "" {
-		d := Data{resp.Value}
+		d := Data{Value: resp.Value, Counter: counter.inc()}
 		*dataResult = d
+		datastore.Store( args.Key, *dataResult)
 		return nil
 	}else {
 		return errors.New(fmt.Sprintf("key %s not in datastore and not in database",args.Key) )
@@ -190,4 +151,35 @@ func (t *Dataformat) Append(args Args, reply *DataformatReply) error {
 	reply.Ack = true
 	//if leader do immediately the op
 	return nil
+}
+
+func Len( sm *sync.Map) int {
+	length := 0
+	sm.Range(func(key, value interface{}) bool{
+		length = length + len(key.(string)) + len(value.(Data).Value) + 8
+		return true
+	})
+	return length
+}
+
+func cleanThread()  {
+	var min int64
+	var keyToDelete string
+	for {
+		for Len(&datastore) >= 2*DIMENSION/3 {
+			min = counter.get()
+			//fmt.Printf("Clean Datastore until 2/3*MaxSize: counter %d, size %d\n", min, Len(&datastore) )
+			datastore.Range(func(key, data interface{}) bool {
+				if data.(Data).Counter < min {
+					min = data.(Data).Counter
+					keyToDelete = key.(string)
+				}
+				return true
+			})
+			// delete oldest entry
+			datastore.Delete(keyToDelete)
+			//fmt.Println("Deleted key: ", keyToDelete)
+		}
+		time.Sleep(5*time.Second)
+	}
 }

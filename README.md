@@ -45,7 +45,12 @@ Aggiornare il file ~/.aws/credentials con delle credenziali valide da [AWS](http
 _(Attenzione: l'applicazione sara' lanciata con i privilegi massimi, di conseguenza si dovra' modificare il file /root/.aws/credentials in dispositivi Linux.)_
 
 Per interagire con l'applicazione, nella directory _scripts_ eseguire:
-Build e run del programma senza un backup, in cold start con:
+Crea l'environment attraverso terraform:
+```
+./deploy.sh
+```
+
+Run del programma senza un backup, in cold start con:
 ```
 ./cold-start.sh
 ```
