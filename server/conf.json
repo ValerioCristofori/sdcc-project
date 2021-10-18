@@ -1,3 +1,4 @@
 {
-  "AwsRegion": "us-east-1"
+  "AwsRegion": "us-east-1",
+  "OptionClean": false
 }

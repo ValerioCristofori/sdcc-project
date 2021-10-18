@@ -36,6 +36,7 @@ exponentialBackOffLabelGet:
 	result, err := client.Invoke(&lambda.InvokeInput{FunctionName: aws.String("get"), Payload: payload})
 	if err != nil {
 		if strings.Contains(err.Error(), "TooManyRequestsException"){
+			fmt.Println("Exponential back-off")
 			time.Sleep( time.Duration(exp)*time.Millisecond)
 			exp = exp*2
 			goto exponentialBackOffLabelGet
@@ -70,6 +71,7 @@ exponentialBackOffLabelPut:
 	result, err := client.Invoke(&lambda.InvokeInput{FunctionName: aws.String("put"), Payload: payload})
 	if err != nil {
 		if strings.Contains(err.Error(), "TooManyRequestsException"){
+			fmt.Println("Exponential back-off")
 			time.Sleep( time.Duration(exp)*time.Millisecond)
 			exp = exp*2
 			goto exponentialBackOffLabelPut
@@ -106,6 +108,7 @@ exponentialBackOffLabelDel:
 	result, err := client.Invoke(&lambda.InvokeInput{FunctionName: aws.String("delete"), Payload: payload})
 	if err != nil {
 		if strings.Contains(err.Error(), "TooManyRequestsException"){
+			fmt.Println("Exponential back-off")
 			time.Sleep( time.Duration(exp)*time.Millisecond)
 			exp = exp*2
 			goto exponentialBackOffLabelDel
@@ -142,6 +145,7 @@ exponentialBackOffLabelApp:
 	result, err := client.Invoke(&lambda.InvokeInput{FunctionName: aws.String("append"), Payload: payload})
 	if err != nil {
 		if strings.Contains(err.Error(), "TooManyRequestsException"){
+			fmt.Println("Exponential back-off")
 			time.Sleep( time.Duration(exp)*time.Millisecond)
 			exp = exp*2
 			goto exponentialBackOffLabelApp

@@ -11,7 +11,7 @@ import (
 )
 
 var(
-	TotQuery = 100000
+	TotQuery = 50000
 	rangeKeys = 100
 )
 
@@ -113,16 +113,16 @@ func Test(t *testing.T)  {
 
 	fmt.Println("STARTING TESTS..")
 
-	start := time.Now()
-	test1()
-	timeTest1 := time.Since(start).Milliseconds()
-	appendOnLogFile(fmt.Sprintf("test1,%d,%d\n", TotQuery,timeTest1))
-	fmt.Printf("Test 1 finished in %d milliseconds\n", timeTest1)
+	//start := time.Now()
+	//test1()
+	//timeTest1 := time.Since(start).Milliseconds()
+	//appendOnLogFile(fmt.Sprintf("test1,%d,%d\n", TotQuery,timeTest1))
+	//fmt.Printf("Test 1 finished in %d milliseconds\n", timeTest1)
 
-	//start = time.Now()
-	//test2()
-	//timeTest2 := time.Since(start).Milliseconds()
-	//appendOnLogFile(fmt.Sprintf("test2,%d,%d\n", TotQuery, timeTest2))
-	//fmt.Printf("Test 2 finished in %d milliseconds\n", timeTest2)
+	start := time.Now()
+	test2()
+	timeTest2 := time.Since(start).Milliseconds()
+	appendOnLogFile(fmt.Sprintf("test2,%d,%d\n", TotQuery, timeTest2))
+	fmt.Printf("Test 2 finished in %d milliseconds\n", timeTest2)
 
 }

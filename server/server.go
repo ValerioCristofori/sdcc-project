@@ -20,7 +20,6 @@ var(
 	masterPort	= 8080
 	masterAddr 	= fmt.Sprintf( "master:%d", masterPort)
     myAddress string
-
 )
 
 type ReplyMessage struct {
@@ -33,7 +32,8 @@ type Cluster struct {
 }
 
 type Configuration struct {
-	AwsRegion	string
+	AwsRegion			string
+	OptionCleaning		bool
 }
 
 func (c *Cluster) toString() string{
@@ -109,7 +109,6 @@ func applyChRoutine()  {
 
 func shutdownHandler() {
 	m := map[string]string{}
-
 	sigs := make(chan os.Signal, 1)
 
 	signal.Notify(sigs, syscall.SIGINT, syscall.SIGTERM)
@@ -166,7 +165,9 @@ func main()  {
 	rfRPC = Make( *listEndPointsRPC, cluster.indexEdgeRequest, applyCh)
 	addHandlerRaft(serverRPC, rfRPC)
 	addHandlerData(serverRPC, new(Dataformat))
-	go cleanThread()
+	if configuration.OptionCleaning{
+		go cleanThread()
+	}
 
 	syscall.Pause()
 

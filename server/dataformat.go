@@ -178,7 +178,7 @@ func cleanThread()  {
 			})
 			// delete oldest entry
 			datastore.Delete(keyToDelete)
-			//fmt.Println("Deleted key: ", keyToDelete)
+			fmt.Println("CLEAN: Deleted key: ", keyToDelete)
 		}
 		time.Sleep(5*time.Second)
 	}
