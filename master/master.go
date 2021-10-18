@@ -35,7 +35,6 @@ var(
 type Configuration struct {
 	NumNodes    int
 	AwsRegion	string
-	roleARN		string
 }
 
 func readConfig()  {
@@ -111,13 +110,7 @@ func serveRequests()  {
 	}
 }
 
-func createDynamoDBTable( tableName string )  {
-	err := initDynamoDB(tableName)
-	if err != nil {
-		log.Fatal("Error in Init DynamoDB: ", err)
-	}
-	fmt.Println("Created DynamoDB Table")
-}
+
 
 
 /*
@@ -126,8 +119,6 @@ func createDynamoDBTable( tableName string )  {
  */
 func main()  {
 	readConfig()
-	//ConfigLambdaFunctions()
-	//createDynamoDBTable("Sensors")
 	serveRequests()
 
 }

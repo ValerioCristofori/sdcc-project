@@ -89,6 +89,7 @@ func connectToAllNodes() {
 		client, err := rpc.DialHTTP("tcp", address)
 		if err != nil {
 			log.Println("Error in dialing for raft: ", err)
+			time.Sleep(500*time.Millisecond)
 			goto retry
 		}
 

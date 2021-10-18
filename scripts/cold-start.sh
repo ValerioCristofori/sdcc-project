@@ -1,6 +1,4 @@
 #!/bin/bash
-cd ../terraform
-sudo sh ./launch-env.sh
 cd ..
 # delete all the backups
 sudo docker volume rm sdcc-project_backup1

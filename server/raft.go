@@ -555,8 +555,6 @@ func (rf *Raft) Start(command Command) (int, int, bool) {
 		index = rf.getLastIndex() + 1
 		rf.logs = append(rf.logs, LogEntry{Index: index, Term: term, Command: command})
 		fmt.Println("Append entry command to commit to all nodes: " + command.toString() )
-	}else {
-		fmt.Println("Request " + command.toString() + " not to leader" )
 	}
 
 	return index, term, isLeader

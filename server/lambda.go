@@ -69,10 +69,8 @@ func PutLambda(request Args) {
 		return
 	}
 
-	if resp.Ack {
-		log.Printf("PUT LAMBDA FUNC: key: %s, value: %s\n", resp.Key, resp.Value)
-	} else {
-		log.Println("Error: PUT LAMBDA FUNC: " + resp.Key)
+	if !resp.Ack {
+		log.Println("Error: PUT LAMBDA FUNC")
 	}
 }
 
@@ -99,9 +97,7 @@ func DeleteLambda(request Args) {
 		return
 	}
 
-	if resp.Ack {
-		log.Printf("DELETE LAMBDA FUNC: key: %s\n", resp.Key)
-	} else {
+	if !resp.Ack {
 		log.Println("Error: DELETE LAMBDA FUNC")
 	}
 }
@@ -129,9 +125,7 @@ func AppendLambda(request Args) {
 		return
 	}
 
-	if resp.Ack {
-		log.Printf("APPEND LAMBDA FUNC: key: %s, value: %s\n", resp.Key, resp.Value)
-	} else {
+	if !resp.Ack {
 		log.Println("Error: APPEND LAMBDA FUNC")
 	}
 }

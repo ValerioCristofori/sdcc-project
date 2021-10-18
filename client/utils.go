@@ -90,6 +90,7 @@ func RpcSingleEdgeNode(command string, key string, value string, edgeAddr string
 	var client *rpc.Client
 
 	// Try to connect to edgeAddr using HTTP protocol
+retry:
 	client, err := rpc.DialHTTP("tcp", fmt.Sprintf( "%s:%d", edgeAddr, port))
 	if err != nil{
 		fmt.Println("Error in dialing: ", err)
@@ -105,6 +106,10 @@ func RpcSingleEdgeNode(command string, key string, value string, edgeAddr string
 				return true
 			}
 
+		} else if strings.Contains(err.Error(), "cannot assigned requested"){
+			// address busy
+			time.Sleep(10 * time.Millisecond)
+			goto retry
 		}
 	}
 
@@ -143,8 +148,6 @@ func RpcSingleEdgeNode(command string, key string, value string, edgeAddr string
 
 		if reply.Ack {
 			fmt.Printf("Put key-value:\n Key:\t%s\nValue:\n%s\n", key, value )
-		} else {
-			fmt.Println("Key-Value not added")
 		}
 
 	} else if strings.EqualFold(command,"delete") {
@@ -164,8 +167,6 @@ func RpcSingleEdgeNode(command string, key string, value string, edgeAddr string
 
 		if reply.Ack {
 			fmt.Printf("Delete key:\n Key:\t%s\n", key )
-		} else {
-			fmt.Println("Key not deleted")
 		}
 
 	} else if strings.EqualFold(command,"append") {
@@ -185,8 +186,6 @@ func RpcSingleEdgeNode(command string, key string, value string, edgeAddr string
 		}
 		if reply.Ack {
 			fmt.Printf("Append value:\n Key:\t%s\nValue:\n%s\n", key, value )
-		} else {
-			fmt.Println("Value not added")
 		}
 
 	}

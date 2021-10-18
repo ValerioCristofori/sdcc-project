@@ -14,8 +14,13 @@ I client possono interagire con i nodi edge attraverso 4 chiamate RPC:
 ## Requisiti
 - <img src="https://blog.seeweb.it/wp-content/uploads/2015/06/homepage-docker-logo.png" width=50px> Docker
 - <img src="https://www.docker.com/blog/wp-content/uploads/2020/02/Compose.png" width=50px> Docker-compose
-- <img src="https://www.geekandjob.com/uploads/wiki/591f10c4e56bf30f45a4ad0b8956223c04802eac.png" width=50px> Go v1.17.1
+- <img src="https://i.pinimg.com/originals/28/ec/74/28ec7440a57536eebad2931517aa1cce.png" width=50px> Terraform
+  
+
 - <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/93/Amazon_Web_Services_Logo.svg/1200px-Amazon_Web_Services_Logo.svg.png" width=50px> Credenziali AWS valide
+
+
+- <img src="https://www.geekandjob.com/uploads/wiki/591f10c4e56bf30f45a4ad0b8956223c04802eac.png" width=50px>Go v1.17.1
 
 ## Struttura
 > ### Server
@@ -37,17 +42,21 @@ I client possono interagire con i nodi edge attraverso 4 chiamate RPC:
 
 ## How to Use
 Aggiornare il file ~/.aws/credentials con delle credenziali valide da [AWS](https://aws.amazon.com/it/).
-_(Attenzione: l'applicazione dovra' essere lanciata con i privilegi massimi, di conseguenza si dovra' modificare il file /root/.aws/credentials in dispositivi basati su Linux.)_
-Build e run del programma senza un backup con:
+_(Attenzione: l'applicazione sara' lanciata con i privilegi massimi, di conseguenza si dovra' modificare il file /root/.aws/credentials in dispositivi Linux.)_
+
+Per interagire con l'applicazione, nella directory _scripts_ eseguire:
+Build e run del programma senza un backup, in cold start con:
 ```
 ./cold-start.sh
 ```
+Lo script andra' anche a creare l'ambiente con dynamoDB e le lambda attraverso terraform.
+Terminare il programma con CTRL+C
 
 Build e run del programma con backup:
 ```
 ./start.sh
 ```
-Terminare il programma con:
+Terminare l'applicazione e distruggere l'ambiente con:
 ```
 ./shutdown.sh
 ```
@@ -65,5 +74,5 @@ Per eliminare la tabella di DynamoDB eseguire:
 
 
 #### Authors
-- Valerio Cristofori
 - Matteo Chiacchia
+- Valerio Cristofori

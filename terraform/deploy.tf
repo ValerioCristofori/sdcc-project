@@ -38,6 +38,7 @@ resource "aws_lambda_function" "put" {
   handler       = "put"
   runtime       = "go1.x"
   memory_size   = "512"
+  timeout       = "300"
 }
 
  resource "aws_lambda_function" "get" {
@@ -49,6 +50,7 @@ resource "aws_lambda_function" "put" {
    handler       = "get"
    runtime       = "go1.x"
    memory_size   = "512"
+   timeout       = "300"
  }
 
  resource "aws_lambda_function" "delete" {
@@ -60,6 +62,7 @@ resource "aws_lambda_function" "put" {
    handler       = "delete"
    runtime       = "go1.x"
    memory_size   = "512"
+   timeout       = "300"
  }
 
  resource "aws_lambda_function" "append" {
@@ -71,4 +74,5 @@ resource "aws_lambda_function" "put" {
    handler       = "append"
    runtime       = "go1.x"
    memory_size   = "512"
+   timeout       = "300"
  }

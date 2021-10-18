@@ -80,7 +80,7 @@ func PrintMap()  {
 //
 //
 //}
-
+//
 //func putOnDynamoDB() {
 //
 //	mutex.Lock()
@@ -108,10 +108,9 @@ func PrintMap()  {
 //
 //		item := Args{max, datastore[max].Value}
 //		//send to dynamodb the value with max dimension
-//		go putItem(item)
+//		PutLambda(item)
 //		//delete value from local storage
 //		DeleteEntry(&item)
-//		fmt.Println(item.Value)
 //	}
 //
 //}

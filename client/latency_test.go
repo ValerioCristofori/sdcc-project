@@ -11,8 +11,8 @@ import (
 )
 
 var(
-	TotQuery = 10
-	rangeKeys = 10
+	TotQuery = 100000
+	rangeKeys = 100
 )
 
 func appendOnLogFile( entry string )  {
@@ -119,10 +119,10 @@ func Test(t *testing.T)  {
 	appendOnLogFile(fmt.Sprintf("test1,%d,%d\n", TotQuery,timeTest1))
 	fmt.Printf("Test 1 finished in %d milliseconds\n", timeTest1)
 
-	start = time.Now()
-	test2()
-	timeTest2 := time.Since(start).Milliseconds()
-	appendOnLogFile(fmt.Sprintf("test2,%d,%d\n", TotQuery, timeTest2))
-	fmt.Printf("Test 2 finished in %d milliseconds\n", timeTest2)
+	//start = time.Now()
+	//test2()
+	//timeTest2 := time.Since(start).Milliseconds()
+	//appendOnLogFile(fmt.Sprintf("test2,%d,%d\n", TotQuery, timeTest2))
+	//fmt.Printf("Test 2 finished in %d milliseconds\n", timeTest2)
 
 }
