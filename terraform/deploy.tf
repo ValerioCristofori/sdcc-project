@@ -32,7 +32,7 @@ resource "aws_iam_role" "role_for_LDC" {
 resource "aws_lambda_function" "put" {
 
   function_name = "put"
-  s3_bucket     = "mybucket-sdcc-lambdas"
+  s3_bucket     = "mybucket-sdcc-lambda"
   s3_key        = "put.zip"
   role          = aws_iam_role.role_for_LDC.arn
   handler       = "put"
@@ -44,7 +44,7 @@ resource "aws_lambda_function" "put" {
  resource "aws_lambda_function" "get" {
 
    function_name = "get"
-   s3_bucket     = "mybucket-sdcc-lambdas"
+   s3_bucket     = "mybucket-sdcc-lambda"
    s3_key        = "get.zip"
    role          = aws_iam_role.role_for_LDC.arn
    handler       = "get"
@@ -56,7 +56,7 @@ resource "aws_lambda_function" "put" {
  resource "aws_lambda_function" "delete" {
 
    function_name = "delete"
-   s3_bucket     = "mybucket-sdcc-lambdas"
+   s3_bucket     = "mybucket-sdcc-lambda"
    s3_key        = "delete.zip"
    role          = aws_iam_role.role_for_LDC.arn
    handler       = "delete"
@@ -68,7 +68,7 @@ resource "aws_lambda_function" "put" {
  resource "aws_lambda_function" "append" {
 
    function_name = "append"
-   s3_bucket     = "mybucket-sdcc-lambdas"
+   s3_bucket     = "mybucket-sdcc-lambda"
    s3_key        = "append.zip"
    role          = aws_iam_role.role_for_LDC.arn
    handler       = "append"

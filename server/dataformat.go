@@ -112,7 +112,7 @@ func (t *Dataformat) Put(args Args, reply *DataformatReply) error {
 		return nil
 	}
 
-	go PutLambda(args)
+	PutLambda(args)
 
 	reply.Ack = true
 	//if leader do immediately the op
@@ -130,7 +130,7 @@ func (t *Dataformat) Delete(args Args, reply *DataformatReply) error {
 		return nil
 	}
 	reply.Ack = true
-	go DeleteLambda(args)
+	DeleteLambda(args)
 	//if leader do immediately the op
 	return nil
 }
@@ -145,7 +145,7 @@ func (t *Dataformat) Append(args Args, reply *DataformatReply) error {
 	}
 
 	//append also in dynamodb
-	go AppendLambda(args)
+	AppendLambda(args)
 
 
 	reply.Ack = true

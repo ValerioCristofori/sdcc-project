@@ -129,7 +129,7 @@ func shutdownHandler() {
 	}()
 
 	go func() {
-		for range time.Tick(10 * time.Second){
+		for range time.Tick(15 * time.Second){
 			datastore.Range(func(key, value interface{}) bool {
 				m[key.(string)] = value.(Data).Value
 				return true

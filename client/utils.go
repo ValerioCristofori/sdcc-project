@@ -108,7 +108,7 @@ retry:
 
 		} else if strings.Contains(err.Error(), "cannot assigned requested"){
 			// address busy
-			time.Sleep(10 * time.Millisecond)
+			time.Sleep(100 * time.Millisecond)
 			goto retry
 		}
 	}

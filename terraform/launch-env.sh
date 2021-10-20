@@ -14,12 +14,12 @@ zip -j ./delete.zip /tmp/delete
 env GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o /tmp/append ./append
 zip -j ./append.zip /tmp/append
 
-sudo aws s3api create-bucket --bucket=mybucket-sdcc-lambdas --region=us-east-1
+sudo aws s3api create-bucket --bucket=mybucket-sdcc-lambda --region=us-east-1
 
-sudo aws s3 cp ./put.zip s3://mybucket-sdcc-lambdas/put.zip
-sudo aws s3 cp ./get.zip s3://mybucket-sdcc-lambdas/get.zip
-sudo aws s3 cp ./delete.zip s3://mybucket-sdcc-lambdas/delete.zip
-sudo aws s3 cp ./append.zip s3://mybucket-sdcc-lambdas/append.zip
+sudo aws s3 cp ./put.zip s3://mybucket-sdcc-lambda/put.zip
+sudo aws s3 cp ./get.zip s3://mybucket-sdcc-lambda/get.zip
+sudo aws s3 cp ./delete.zip s3://mybucket-sdcc-lambda/delete.zip
+sudo aws s3 cp ./append.zip s3://mybucket-sdcc-lambda/append.zip
 
 cd ../terraform
 sudo terraform init
